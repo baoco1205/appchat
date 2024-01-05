@@ -26,20 +26,20 @@ io.on("connection", (socket) => {
   });
 
   //xu ly dang ky
-  socket.on("register", (username, password, nickname, name) => {
-    if (username || password || name === "") {
+  socket.on("register", (data) => {
+    if (data.username == "" || data.password == "" || data.name === "") {
       socket.emit(
         "errorRegister",
         "username,password and username don't empty"
       );
     }
-    if ((username, password, nickname, name)) {
+    if ((data.username, data.password, data.nickname, data.name)) {
       userModel
         .create({
-          username: username,
-          password: password,
-          nickname: nickname,
-          name: name,
+          username: data.username,
+          password: data.password,
+          nickname: data.nickname,
+          name: data.name,
         })
         .then((data) => {
           let messsage = "create success";

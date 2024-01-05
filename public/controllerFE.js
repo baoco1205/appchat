@@ -33,7 +33,7 @@ $(document).ready(() => {
         alert("{Password and confirm password must match !!");
         location.reload();
       }
-      socket.emit("register", username, password, nickname, name);
+      socket.emit("register", { username, password, nickname, name });
     });
   });
 
