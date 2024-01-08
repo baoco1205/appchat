@@ -47,7 +47,8 @@ var checkLogin = function (req, res, next) {
         const { password, ...other } = data._doc;
         req.user = { data: { ...other }, token: token };
         console.log("pass login");
-        next();
+        // next();
+        res.json({ message: "login success", token: token });
       });
     })
     .catch((err) => {

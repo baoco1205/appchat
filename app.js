@@ -95,7 +95,7 @@ app.use("/register", (req, res) => {
 app.use("/login", (req, res) => {
   res.render("login.ejs");
 });
-app.use("/homepage", checkPassport, (req, res) => {
+app.use("/homepage", (req, res) => {
   res.render("indextemp.ejs");
 });
 server.listen(port, () => {

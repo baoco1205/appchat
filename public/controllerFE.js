@@ -17,6 +17,7 @@ socket.on("errorRegister", (msg) => {
 ///xu ly dang nhap
 socket.on("loginSuccess", (data) => {
   let token = data.token;
+  alert(token);
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   localStorage.setItem("Bearer Token", token);
   location.href = "http://localhost:3000/homepage";
@@ -50,7 +51,33 @@ $(document).ready(() => {
   $("#loginButton").click(() => {
     let username = $("#username").val();
     let password = $("#password").val();
-    socket.emit("login", { username, password });
+
+    fetch("http://localhost:3000/login", {
+      method: "POST",
+      // headers: {
+      //   token: token,
+      //   // Các headers khác nếu cần
+      // },
+      body: {
+        username: username,
+        password: password,
+        // Dữ liệu cần gửi lên server ở đây
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        localStorage.setItem("bearerToken", token);
+        // return response.token;
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        // Xử lý lỗi ở đây
+        console.error("There was a problem with the fetch operation:", error);
+      });
   });
   $("#linkRegister").click(() => {
     location.href = "http://localhost:3000/register";
