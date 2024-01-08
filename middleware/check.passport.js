@@ -19,17 +19,21 @@ const cookieExtractor = function (req) {
 opts.jwtFromRequest = cookieExtractor;
 opts.secretOrKey = process.env.SECRECT;
 let strategy = new JwtStrategy(opts, function (jwt_payload, done) {
-  userModel.findOne({ id: jwt_payload.sub }, function (err, user) {
-    if (err) {
+  console.log("test id:" + jwt_payload.id);
+  let id = jwt_payload.id;
+  userModel
+    .findById(id)
+    .then((user) => {
+      if (user) {
+        console.log("tesst dong nay");
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    })
+    .catch((err) => {
       return done(err, false);
-    }
-    if (user) {
-      return done(null, user);
-    } else {
-      return done(null, false);
-      // or you could create a new account
-    }
-  });
+    });
 });
 passport.use(strategy);
 let checkPassport = passport.authenticate("jwt", { session: false });

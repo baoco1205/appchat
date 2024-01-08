@@ -17,7 +17,8 @@ socket.on("errorRegister", (msg) => {
 ///xu ly dang nhap
 socket.on("loginSuccess", (data) => {
   let token = data.token;
-  alert(token);
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  localStorage.setItem("Bearer Token", token);
   location.href = "http://localhost:3000/homepage";
 });
 socket.on("errorLogin", (data) => {

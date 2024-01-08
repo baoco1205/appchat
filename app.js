@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
             let message = "login success";
             let id = data._id.toString();
             var token = jwt.sign({ id }, process.env.SECRECT);
-            console.log(token);
+            console.log("Pass login");
             return socket.emit("loginSuccess", { token: token });
           })
           .catch((err) => {
