@@ -3,9 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Login</title>
+    <script src="jquery.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="./controllerFE.js"></script>
   </head>
-  <body>
-    hall
+  <body style="background-color: gray">
+    <div>
+      <h2>LOGIN</h2>
+    </div>
+    <div>
+      <h5>username:</h5>
+      <input id="username" type="text" />
+    </div>
+    <div>
+      <h5>password:</h5>
+      <input type="password" id="password" type="text" />
+    </div>
+    <div style="margin-top: 20px">
+      <button id="loginButton">Login</button>
+      <button id="linkRegister">Register</button>
+    </div>
   </body>
 </html>

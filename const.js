@@ -5,5 +5,5 @@ let now = function () {
   return datetimeVN;
 };
 let NOW = now();
-
-module.exports = { DBCONFIG, NOW };
+let DELETE = { UNDELETED: 0, DELETED: 1 };
+module.exports = { DBCONFIG, NOW, DELETE };
