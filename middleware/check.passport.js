@@ -6,14 +6,16 @@ require("dotenv").config();
 var opts = {};
 const cookieExtractor = function (req) {
   var token = ExtractJwt.fromAuthHeaderAsBearerToken();
-
+  console.log(token);
   token =
     token(req) ||
+    req.header["token"] ||
     req.cookies["jwt"] ||
     req.headers["authorization"] ||
     req.cookies.token ||
     req.body.token ||
-    req.query.token;
+    req.query.token ||
+    null;
   return token;
 };
 opts.jwtFromRequest = cookieExtractor;

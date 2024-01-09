@@ -7,24 +7,16 @@ socket.on("serverSendMSG", (msg) => {
   $("#noiDung").append(msg + "<br>");
 });
 //xu ly dang ky
-socket.on("notificationRegister", (data) => {
-  alert(data.message);
-  location.href = "http://localhost:3000/login";
-});
-socket.on("errorRegister", (msg) => {
-  alert(msg.message);
-});
+
 ///xu ly dang nhap
 socket.on("loginSuccess", (data) => {
   let token = data.token;
   alert(token);
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
   localStorage.setItem("Bearer Token", token);
   location.href = "http://localhost:3000/homepage";
 });
-socket.on("errorLogin", (data) => {
-  alert(data.message);
-});
+
 ///
 $(document).ready(() => {
   //send msg
@@ -45,40 +37,45 @@ $(document).ready(() => {
       alert("Password and confirm password must match !!");
       location.reload();
     }
-    socket.emit("register", { username, password, nickname, name });
-  });
-  //login
-  $("#loginButton").click(() => {
-    let username = $("#username").val();
-    let password = $("#password").val();
-
-    fetch("http://localhost:3000/login", {
+    if (username == "" || password == "" || name == "") {
+      alert("Field have (*) not null!!");
+      location.reload();
+    }
+    fetch("http://localhost:3000/register", {
       method: "POST",
-      // headers: {
-      //   token: token,
-      //   // Các headers khác nếu cần
-      // },
-      body: {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         username: username,
         password: password,
-        // Dữ liệu cần gửi lên server ở đây
-      },
+        name: name,
+        nickname: nickname,
+      }),
     })
       .then((response) => {
+        console.log(response);
         if (!response.ok) {
+          if (response.status === 400) {
+            alert("Dupllicated username");
+          }
           throw new Error("Network response was not ok");
         }
-        localStorage.setItem("bearerToken", token);
-        // return response.token;
+        return response.json();
       })
       .then((data) => {
         console.log(data);
+        alert("register success");
+        location.href = "http://localhost:3000/login";
+        // axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+        // localStorage.setItem("bearerToken", reponse.token);
       })
       .catch((error) => {
-        // Xử lý lỗi ở đây
         console.error("There was a problem with the fetch operation:", error);
       });
   });
+  //login
+
   $("#linkRegister").click(() => {
     location.href = "http://localhost:3000/register";
   });

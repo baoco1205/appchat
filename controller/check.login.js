@@ -3,7 +3,7 @@ const KEY_TOKEN = process.env.SECRECT;
 require("dotenv").config();
 const usersModel = require("../database/user");
 const bcrypt = require("bcrypt");
-const response = require("../controller/response");
+const response = require("./response");
 
 var checkLogin = function (req, res, next) {
   var username = req.body.username;
@@ -12,14 +12,14 @@ var checkLogin = function (req, res, next) {
     .findOne({ username: username })
     .then((data) => {
       if (!data) {
-        response.responseError(
+        return response.responseError(
           res,
           { message: "WRONG PASSWORD OR USERNAME" },
           400
         );
       }
       if (data.deleted === 1) {
-        response.responseError(
+        return response.responseError(
           res,
           { message: "Your accounter is deleted" },
           400
@@ -27,14 +27,14 @@ var checkLogin = function (req, res, next) {
       }
       bcrypt.compare(password, data.password, function (err, result) {
         if (err) {
-          response.responseError(
+          return response.responseError(
             res,
             { message: "WRONG PASSWORD OR USERNAME" },
             400
           );
         }
         if (!result) {
-          response.responseError(
+          return response.responseError(
             res,
             { message: "WRONG PASSWORD OR USERNAME" },
             400
@@ -47,8 +47,7 @@ var checkLogin = function (req, res, next) {
         const { password, ...other } = data._doc;
         req.user = { data: { ...other }, token: token };
         console.log("pass login");
-        // next();
-        res.json({ message: "login success", token: token });
+        return res.json({ message: "login success", token: token });
       });
     })
     .catch((err) => {
