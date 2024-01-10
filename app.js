@@ -38,19 +38,16 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/register", (req, res) => {
+app.get("/register", (req, res) => {
   res.render("register.ejs");
 });
-app.use("/login", (req, res) => {
+app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
-
-app.use("/homepage", checkPassport, (req, res) => {
+app.get("/homepage", checkPassport, (req, res) => {
   res.render("indextemp.ejs");
 });
-// app.use("/test", (req, res, next) => {
-//   res.render("reqToken.ejs");
-// });
+
 server.listen(port, () => {
   console.log("Connect at port:" + port);
 });

@@ -29,7 +29,6 @@ $(document).ready(() => {
         let token = data.token;
         localStorage.setItem("token", token);
         // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
-        // location.href = "http://localhost:3000/homepage";
         //////
         fetch("http://localhost:3000/homepage", {
           method: "POST",
@@ -45,11 +44,11 @@ $(document).ready(() => {
             if (!response.ok) {
               throw new Error("Network response was not ok");
             }
-            return response.json();
+            return response;
           })
           .then((data) => {
+            // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
             location.href = "http://localhost:3000/homepage";
-            console.log(data);
           })
           .catch((error) => {
             console.error(
@@ -64,6 +63,5 @@ $(document).ready(() => {
       });
   });
 
-  /////
   /////
 });

@@ -13,9 +13,9 @@ const cookieExtractor = function (req) {
     token(req) ||
     req.headers["token"] ||
     req.body.token ||
-    // req.cookies["jwt"] ||
+    req.cookies["jwt"] ||
     req.headers["authorization"] ||
-    // req.cookies.token ||
+    req.cookies.token ||
     req.query.token ||
     null;
   return token;
@@ -23,13 +23,13 @@ const cookieExtractor = function (req) {
 opts.jwtFromRequest = cookieExtractor;
 opts.secretOrKey = process.env.SECRECT;
 let strategy = new JwtStrategy(opts, function (jwt_payload, done) {
-  console.log("test id:" + jwt_payload.id);
+  // console.log("test id:" + jwt_payload.id);
   let id = jwt_payload.id;
   userModel
     .findById(id)
     .then((user) => {
       if (user) {
-        console.log("tesst dong nay");
+        console.log("Pass passport");
         return done(null, user);
       } else {
         return done(null, false);
