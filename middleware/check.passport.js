@@ -5,15 +5,17 @@ var passport = require("passport");
 require("dotenv").config();
 var opts = {};
 const cookieExtractor = function (req) {
+  let body = req.body.token;
+
   var token = ExtractJwt.fromAuthHeaderAsBearerToken();
-  console.log(token);
+  console.log(token(req));
   token =
     token(req) ||
-    req.header["token"] ||
-    req.cookies["jwt"] ||
-    req.headers["authorization"] ||
-    req.cookies.token ||
+    req.headers["token"] ||
     req.body.token ||
+    // req.cookies["jwt"] ||
+    req.headers["authorization"] ||
+    // req.cookies.token ||
     req.query.token ||
     null;
   return token;

@@ -8,7 +8,7 @@ $(document).ready(() => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer + ${token}`,
+        // Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         username: username,
@@ -29,17 +29,17 @@ $(document).ready(() => {
         let token = data.token;
         localStorage.setItem("token", token);
         // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
-        ///////
-        let getToken = localStorage.getItem(token);
-        console.log(getToken);
-
+        // location.href = "http://localhost:3000/homepage";
+        //////
         fetch("http://localhost:3000/homepage", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer + ${getToken}`,
+            authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({}),
+          body: JSON.stringify({
+            token: token,
+          }),
         })
           .then((response) => {
             if (!response.ok) {
@@ -48,6 +48,7 @@ $(document).ready(() => {
             return response.json();
           })
           .then((data) => {
+            location.href = "http://localhost:3000/homepage";
             console.log(data);
           })
           .catch((error) => {
@@ -56,8 +57,7 @@ $(document).ready(() => {
               error
             );
           });
-        ///////
-        location.href = "http://localhost:3000/homepage";
+        //////
       })
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);

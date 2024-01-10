@@ -44,12 +44,13 @@ app.use("/register", (req, res) => {
 app.use("/login", (req, res) => {
   res.render("login.ejs");
 });
+
 app.use("/homepage", checkPassport, (req, res) => {
   res.render("indextemp.ejs");
 });
-app.use("/test", (req, res, next) => {
-  res.render("reqToken.ejs");
-});
+// app.use("/test", (req, res, next) => {
+//   res.render("reqToken.ejs");
+// });
 server.listen(port, () => {
   console.log("Connect at port:" + port);
 });
