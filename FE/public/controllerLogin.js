@@ -28,6 +28,7 @@ $(document).ready(() => {
         console.log(data.token);
         let token = data.token;
         localStorage.setItem("token", token);
+        let newtoken = localStorage.get("token");
         // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
         //////
         fetch("http://localhost:3000/homepage", {

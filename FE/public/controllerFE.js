@@ -77,7 +77,8 @@ $(document).ready(() => {
   //login
 
   $("#linkRegister").click(() => {
-    location.href = "http://localhost:3000/register";
+    location.href = "http://127.0.0.1:5500/FE/views/register.html";
+    window.location.href = "http://127.0.0.1:5500/FE/views/register.html";
   });
 });
 

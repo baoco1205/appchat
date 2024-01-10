@@ -6,16 +6,17 @@ app.use(express.static("./public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
 let io = require("socket.io")(server);
-app.set("view engine", "ejs");
-app.set("views", "./views");
+var cors = require("cors");
+
+///cors
+app.use(cors());
+///
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const router = require("./router/routerAll");
-const checkPassport = require("./middleware/check.passport");
-
 let response = require("./controller/response");
 
 ///require const
@@ -36,16 +37,6 @@ io.on("connection", (socket) => {
   socket.on("sendMSG", (msg) => {
     socket.emit("serverSendMSG", msg);
   });
-});
-
-app.get("/register", (req, res) => {
-  res.render("register.ejs");
-});
-app.get("/login", (req, res) => {
-  res.render("login.ejs");
-});
-app.get("/homepage", checkPassport, (req, res) => {
-  res.render("indextemp.ejs");
 });
 
 server.listen(port, () => {
