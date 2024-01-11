@@ -8,6 +8,8 @@ const cookieExtractor = function (req) {
   let body = req.body.token;
 
   var token = ExtractJwt.fromAuthHeaderAsBearerToken();
+
+  console.log("token" + token);
   console.log(token(req));
   token =
     token(req) ||

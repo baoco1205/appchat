@@ -45,7 +45,7 @@ var checkLogin = function (req, res, next) {
           expiresIn: "2d",
         });
         const { password, ...other } = data._doc;
-        req.user = { data: { ...other }, token: token };
+        // req.user = { data: { ...other }, token: token };
         console.log("pass login");
         return res.json({ message: "login success", token: token });
       });

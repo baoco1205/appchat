@@ -37,10 +37,4 @@ $(document).ready(() => {
       });
   });
   /////
-
-  const abc = async function () {
-    try {
-      const a = await modelUser.findbyid();
-    } catch (error) {}
-  };
 });

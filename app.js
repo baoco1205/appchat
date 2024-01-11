@@ -7,21 +7,25 @@ let server = require("http").Server(app);
 let port = process.env.PORT;
 let io = require("socket.io")(server, {
   cors: {
+    origin: "http://127.0.0.1:5500",
+    methods: ["GET", "POST"],
+  },
+});
+var cors = require("cors", {
+  cors: {
     origin: "*",
   },
 });
-var cors = require("cors");
 
-///cors
+// /cors
 app.use(cors());
 app.use(function (req, res, next) {
-  console.log("testtt");
   res.header("Access-Control-Allow-Origin", "*"); // Cho phép tất cả các origin
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Cho phép các phương thức HTTP
-  res.header("Access-Control-Allow-Headers", "Content-Type"); // Cho phép header Content-Type
+  res.header("Access-Control-Allow-Headers", "Content-Type", "*"); // Cho phép header Content-Type
+  console.log("pass cors");
   next();
 });
-///
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));

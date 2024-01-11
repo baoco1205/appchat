@@ -9,6 +9,6 @@ router.post("/login", checkLogin);
 router.get("/");
 router.get("/users/{id}");
 router.post("/users");
-router.get("/getUsername", checkPassport, controller.getUsername);
+router.get("/get_username", checkPassport, controller.getUsername);
 
 module.exports = router;
