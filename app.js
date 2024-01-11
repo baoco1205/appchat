@@ -5,20 +5,21 @@ let app = express();
 app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
+var cors = require("cors", {
+  cors: {
+    origin: "*",
+  },
+});
+app.use(cors());
 let io = require("socket.io")(server, {
   cors: {
     origin: "http://127.0.0.1:5500",
     methods: ["GET", "POST"],
   },
 });
-var cors = require("cors", {
-  cors: {
-    origin: "*",
-  },
-});
 
 // /cors
-app.use(cors());
+
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // Cho phép tất cả các origin
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Cho phép các phương thức HTTP
@@ -50,7 +51,8 @@ io.on("connection", (socket) => {
   console.log("Have user joint: " + socket.id);
   //xu ly gui va nhan tin nhan
   socket.on("sendMSG", (msg) => {
-    socket.emit("serverSendMSG", msg);
+    console.log(msg);
+    io.sockets.emit("serverSendMSG", msg);
   });
 });
 app.use("/home", (req, res) => {});

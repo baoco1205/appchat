@@ -6,11 +6,8 @@ require("dotenv").config();
 var opts = {};
 const cookieExtractor = function (req) {
   let body = req.body.token;
-
   var token = ExtractJwt.fromAuthHeaderAsBearerToken();
-
-  console.log("token" + token);
-  console.log(token(req));
+  // console.log(token(req));
   token =
     token(req) ||
     req.headers["token"] ||

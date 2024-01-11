@@ -1,27 +1,4 @@
-var socket = io("http://localhost:3000/");
-//gui tin nhan
-socket.on("serverSendMSG", (msg) => {
-  $("#noiDung").append(msg + "<br>");
-});
-
-///xu ly dang nhap
-socket.on("loginSuccess", (data) => {
-  let token = data.token;
-  alert(token);
-
-  localStorage.setItem("Bearer Token", token);
-  location.href = "http://localhost:3000/homepage";
-});
-
-///
 $(document).ready(() => {
-  //send msg
-  $("#buttonSend").click(() => {
-    let msg = $("#boxChat").val();
-    console.log(msg);
-    socket.emit("sendMSG", msg);
-    document.getElementById("boxChat").value = "";
-  });
   //send info register
   $("#buttonRegister").click(() => {
     let username = $("#username").val();
