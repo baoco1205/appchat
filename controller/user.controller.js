@@ -36,4 +36,5 @@ let createUser = (req, res) => {
       return response.responseError(res, err, 500);
     });
 };
-module.exports = { createUser };
+let getUsername = () => {};
+module.exports = { createUser, getUsername };

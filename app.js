@@ -2,14 +2,25 @@
 require("dotenv").config();
 let express = require("express");
 let app = express();
-app.use(express.static("./public"));
+app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
-let io = require("socket.io")(server);
+let io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 var cors = require("cors");
 
 ///cors
 app.use(cors());
+app.use(function (req, res, next) {
+  console.log("testtt");
+  res.header("Access-Control-Allow-Origin", "*"); // Cho phép tất cả các origin
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Cho phép các phương thức HTTP
+  res.header("Access-Control-Allow-Headers", "Content-Type"); // Cho phép header Content-Type
+  next();
+});
 ///
 
 var bodyParser = require("body-parser");
@@ -38,7 +49,7 @@ io.on("connection", (socket) => {
     socket.emit("serverSendMSG", msg);
   });
 });
-
+app.use("/home", (req, res) => {});
 server.listen(port, () => {
   console.log("Connect at port:" + port);
 });

@@ -28,41 +28,19 @@ $(document).ready(() => {
         console.log(data.token);
         let token = data.token;
         localStorage.setItem("token", token);
-        let newtoken = localStorage.get("token");
+        location.href = "http://127.0.0.1:5500/FE/views/indextemp.html";
         // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
-        //////
-        fetch("http://localhost:3000/homepage", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            token: token,
-          }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response;
-          })
-          .then((data) => {
-            // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
-            location.href = "http://localhost:3000/homepage";
-          })
-          .catch((error) => {
-            console.error(
-              "There was a problem with the fetch operation:",
-              error
-            );
-          });
-        //////
+        // authorization: `Bearer ${token}`,
       })
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
       });
   });
-
   /////
+
+  const abc = async function () {
+    try {
+      const a = await modelUser.findbyid();
+    } catch (error) {}
+  };
 });

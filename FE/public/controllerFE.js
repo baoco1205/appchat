@@ -1,12 +1,8 @@
-// import { HOME_PAGE, REGISTER_PAGE, LOGIN_PAGE } from "../public/constFE";
-
 var socket = io("http://localhost:3000/");
-///xu ly su kien
 //gui tin nhan
 socket.on("serverSendMSG", (msg) => {
   $("#noiDung").append(msg + "<br>");
 });
-//xu ly dang ky
 
 ///xu ly dang nhap
 socket.on("loginSuccess", (data) => {
@@ -66,7 +62,7 @@ $(document).ready(() => {
       .then((data) => {
         console.log(data);
         alert("register success");
-        location.href = "http://localhost:3000/login";
+        location.href = "http://127.0.0.1:5500/FE/views/login.html";
         // axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
         // localStorage.setItem("bearerToken", reponse.token);
       })
@@ -78,7 +74,7 @@ $(document).ready(() => {
 
   $("#linkRegister").click(() => {
     location.href = "http://127.0.0.1:5500/FE/views/register.html";
-    window.location.href = "http://127.0.0.1:5500/FE/views/register.html";
+    // window.location.href = "http://127.0.0.1:5500/FE/views/register.html";
   });
 });
 
