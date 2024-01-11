@@ -12,7 +12,7 @@ $(document).ready(() => {
     .then((data) => {
       if (data.status === 401) {
         alert("Login session has expired");
-        location.href = "http://127.0.0.1:5500/FE/views/login.html";
+        location.href = "http://127.0.0.1:5501/views/login.html";
       }
 
       if (!data.ok) {

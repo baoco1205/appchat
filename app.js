@@ -5,6 +5,8 @@ let app = express();
 app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
+
+let multer = require("multer");
 var cors = require("cors", {
   cors: {
     origin: "*",
@@ -13,7 +15,8 @@ var cors = require("cors", {
 app.use(cors());
 let io = require("socket.io")(server, {
   cors: {
-    origin: "http://127.0.0.1:5500",
+    origin: "http://127.0.0.1:5501",
+    // origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -24,7 +27,6 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // Cho phép tất cả các origin
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE"); // Cho phép các phương thức HTTP
   res.header("Access-Control-Allow-Headers", "Content-Type", "*"); // Cho phép header Content-Type
-  console.log("pass cors");
   next();
 });
 
@@ -47,6 +49,18 @@ DatabaseUtil.connect(function (err) {
 app.use("", router);
 
 //socket
+//upload file
+
+let storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./upload");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+var upload = multer({ storage: storage });
+//server xu ly chat
 io.on("connection", (socket) => {
   console.log("Have user joint: " + socket.id);
   //xu ly gui va nhan tin nhan

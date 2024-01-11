@@ -25,6 +25,16 @@
     <h5 id="username"></h5>
     <h4 id="noiDung"></h4>
     <input id="boxChat" type="text" />
-    <button id="buttonSend">Send</button>
+    <button id="buttonSend" style="margin-bottom: 10px">Send</button>
+    <div>
+      <form
+        action="http://localhost:3000/upload_file"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <input type="file" name="file" /><br />
+        <input type="submit" value="upload" />
+      </form>
+    </div>
   </body>
 </html>

@@ -39,7 +39,7 @@ $(document).ready(() => {
       .then((data) => {
         console.log(data);
         alert("register success");
-        location.href = "http://127.0.0.1:5500/FE/views/login.html";
+        location.href = "http://127.0.0.1:5501/views/login.html";
         // axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
         // localStorage.setItem("bearerToken", reponse.token);
       })
@@ -50,8 +50,8 @@ $(document).ready(() => {
   //login
 
   $("#linkRegister").click(() => {
-    location.href = "http://127.0.0.1:5500/FE/views/register.html";
-    // window.location.href = "http://127.0.0.1:5500/FE/views/register.html";
+    location.href = "http://127.0.0.1:5501/views/register.html";
+    // window.location.href = "http://127.0.0.1:5501/views/register.html";
   });
 });
 

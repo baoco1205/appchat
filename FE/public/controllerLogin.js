@@ -28,7 +28,7 @@ $(document).ready(() => {
         console.log(data.token);
         let token = data.token;
         localStorage.setItem("token", token);
-        location.href = "http://127.0.0.1:5500/FE/views/indextemp.html";
+        location.href = "http://127.0.0.1:5501/views/indextemp.html";
         // axios.defaults.headers.common["Bearer Token"] = `Bearer ${token}`;
         // authorization: `Bearer ${token}`,
       })
