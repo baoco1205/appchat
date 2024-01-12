@@ -13,8 +13,13 @@ router.get("/users/{id}");
 router.post("/users");
 router.get("/get_username", checkPassport, controller.getUsername);
 router.post("/upload_file", upload.single("file"), (req, res) => {
-  console.log("Upload success");
+  if (req.file === undefined) {
+    response.responseError(res, "Don't empty file", 412);
+  }
   response.response(res, req.file);
+  console.log("Upload success");
 });
+///Chat
+router.get("/load_msg", checkPassport, controller.getMSG);
 
 module.exports = router;

@@ -4,7 +4,10 @@ let storage = multer.diskStorage({
     if (file.mimetype === "image/jpg" || file.mimetype === "image/jpeg") {
       cb(null, "./upload");
     } else {
-      cb(new Error(`File upload must ".jpg" or ".jpeg".`));
+      // cb(new Error(`File upload must ".jpg" or ".jpeg".`));
+      let err = new Error("Sai dinh dang file");
+      err.statusCode = 415;
+      throw err;
     }
   },
   filename: (req, file, cb) => {

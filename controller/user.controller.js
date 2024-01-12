@@ -3,6 +3,7 @@ let userModel = require("../database/user");
 let response = require("../controller/response");
 let bcrypt = require("bcrypt");
 let without = require("../controller/without");
+let chatModel = require("../database/chat");
 let createUser = (req, res) => {
   var { username, password, name, nickname } = req.body;
   console.log(req.body);
@@ -40,4 +41,24 @@ let getUsername = (req, res) => {
   let username = req.user.username;
   response.response(res, username);
 };
-module.exports = { createUser, getUsername };
+let getMSG = (req, res) => {
+  let username = req.user.username;
+  chatModel
+    .find({ username: username })
+    .then((data) => {
+      let msg = [];
+      let date = [];
+      for (let i = 0; i < data.length; i++) {
+        let msgTemp = data[i].historyChat;
+        let dateTemp = data[i].date;
+        msg.push(msgTemp);
+        date.push(dateTemp);
+      }
+
+      response.response(res, { chat: msg, date: date });
+    })
+    .catch((err) => {
+      response.responseError(res, err, 404);
+    });
+};
+module.exports = { createUser, getUsername, getMSG };

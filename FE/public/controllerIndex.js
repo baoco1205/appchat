@@ -2,6 +2,35 @@ var socket = io("http://localhost:3000/");
 let token = localStorage.getItem("token");
 $(document).ready(() => {
   console.log(token);
+  /////
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", function (event) {
+      e.preventDefault();
+    });
+  /////
+  $("#uploadForm").on("submit", (e) => {
+    var formdata = new FormData();
+    // e.preventDefault();
+    var requestOptions = {
+      method: "POST",
+      // headers: myHeaders,
+      body: formdata,
+      // redirect: "follow",
+    };
+
+    fetch("http://localhost:3000/upload_file", requestOptions)
+      .then((response) => {
+        console.log("TESTT");
+        response.json();
+      })
+      .then((result) => {
+        console.log("TESTT");
+        console.log(result);
+      })
+      .catch((error) => console.log("error", error));
+  });
+
   fetch("http://localhost:3000/get_username", {
     method: "GET",
     headers: {
@@ -36,6 +65,29 @@ $(document).ready(() => {
         console.log(msg);
         $("#noiDung").append(msg.username + ": " + msg.msg + "<br>");
       });
+      //Load msg:
+      fetch("http://localhost:3000/load_msg", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => {
+          let data = response.json();
+          console.log("data" + data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      ///client send hinh anh
+      // document
+      //   .getElementById("uploadForm")
+      //   .addEventListener("submit", function (event) {
+      //     // event.preventDefault();
+      //     socket.on("sendIMG", () => {});
+      //     console.log("testtt.t");
+      //   });
     })
     .catch((error) => {
       console.error("There was a problem with the fetch operation:", error);

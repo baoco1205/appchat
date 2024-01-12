@@ -7,7 +7,6 @@ const { NOW } = require("../const");
 const chatSchema = new Schema(
   {
     historyChat: { type: String },
-    time: { type: String, min: 6, max: 20 },
     date: { type: Date, default: NOW },
     username: { type: String, min: 6, max: 20 },
   }
