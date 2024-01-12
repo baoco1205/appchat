@@ -6,7 +6,6 @@ app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
 
-let multer = require("multer");
 var cors = require("cors", {
   cors: {
     origin: "*",
@@ -51,15 +50,6 @@ app.use("", router);
 //socket
 //upload file
 
-let storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./upload");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-var upload = multer({ storage: storage });
 //server xu ly chat
 io.on("connection", (socket) => {
   console.log("Have user joint: " + socket.id);

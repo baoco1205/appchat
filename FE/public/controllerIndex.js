@@ -25,13 +25,13 @@ $(document).ready(() => {
     .then((user) => {
       let username = user.data;
       $("#username").append(user.data);
-      //send msg
+      //send msg to server
       $("#buttonSend").click(() => {
         let msg = $("#boxChat").val();
         socket.emit("sendMSG", { msg, username });
         document.getElementById("boxChat").value = "";
       });
-      //gui tin nhan
+      //server send msg
       socket.on("serverSendMSG", (msg) => {
         console.log(msg);
         $("#noiDung").append(msg.username + ": " + msg.msg + "<br>");
