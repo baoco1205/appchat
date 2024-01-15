@@ -1,0 +1,20 @@
+:root {
+  --header-width-: 85px;
+  --font-text-: Inter, sans-serif;
+  --border-color-: #d1d5db;
+}
+/* * {
+  margin: 0px;
+  padding: 0px;
+} */
+#coverBox {
+  display: flex;
+  flex-direction: row;
+}
+#listUserOnline {
+  width: 30%;
+  height: 3em;
+  display: flex;
+  flex-wrap: nowrap;
+  /* padding: 2.5em 0; */
+}

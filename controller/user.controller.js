@@ -3,7 +3,7 @@ let userModel = require("../database/user");
 let response = require("../controller/response");
 let bcrypt = require("bcrypt");
 let without = require("../controller/without");
-let chatModel = require("../database/chat");
+let chatRoomModel = require("../database/chatRoom");
 let createUser = (req, res) => {
   var { username, password, name, nickname } = req.body;
   console.log(req.body);
@@ -41,9 +41,9 @@ let getUsername = (req, res) => {
   let username = req.user.username;
   response.response(res, username);
 };
-let getMSG = (req, res) => {
+let getMSGChatRoom = (req, res) => {
   let username = req.user.username;
-  chatModel
+  chatRoomModel
     .find({ username: username })
     .then((data) => {
       let msg = [];
@@ -61,4 +61,29 @@ let getMSG = (req, res) => {
       response.responseError(res, err, 404);
     });
 };
-module.exports = { createUser, getUsername, getMSG };
+let checkHistoryChat = (req, res) => {
+  username1 = req.user.username;
+  username2 = req.body.usernameNeedChat;
+  chatRoomModel
+    .find({ username: { $in: [username1, username2] } })
+    .then((data) => {
+      let codeName1 = username1 + username2;
+      let codeName2 = username2 + username1;
+      for (let i = 0; i < data.length; i++) {
+        let codeChat = data[i].codeChatHistory;
+        if (
+          data.codeChatHistory.includes(codeName1) ||
+          data.codeChatHistory.includes(codeName2)
+        ) {
+          let userChat1 = [];
+          let userChat2 = [];
+          //Tra ve cac data chat cua user1 va user2.
+        } else {
+        }
+      }
+    })
+    .catch((err) => {
+      responseError(res, err, 405);
+    });
+};
+module.exports = { createUser, getUsername, getMSGChatRoom, checkHistoryChat };

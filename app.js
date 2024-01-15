@@ -5,7 +5,7 @@ let app = express();
 app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
-let chatModel = require("./database/chat");
+let chatRoomModel = require("./database/chatRoom");
 let { NOW } = require("./const");
 // let socketConfig = require("./socket.io/socket");
 // app.use(socketConfig);
@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
   //xu ly gui va nhan tin nhan
   socket.on("sendMSG", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
-    chatModel
+    chatRoomModel
       .create({
         historyChat: msg.msg,
         date: NOW,

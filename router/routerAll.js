@@ -9,9 +9,9 @@ const response = require("../controller/response");
 router.post("/register", controller.createUser);
 router.post("/login", checkLogin);
 router.get("/");
-router.get("/users/{id}");
 router.post("/users");
 router.get("/get_username", checkPassport, controller.getUsername);
+
 router.post("/upload_file", upload.single("file"), (req, res) => {
   if (req.file === undefined) {
     response.responseError(res, "Don't empty file", 412);
@@ -20,6 +20,7 @@ router.post("/upload_file", upload.single("file"), (req, res) => {
   console.log("Upload success");
 });
 ///Chat
-router.get("/load_msg", checkPassport, controller.getMSG);
+router.get("/load_msg_room", checkPassport, controller.getMSGChatRoom);
+router.get("/check_history_chat", checkPassport, controller.checkHistoryChat);
 
 module.exports = router;

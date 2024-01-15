@@ -13,9 +13,11 @@
 
 // // Ghi dữ liệu giải mã vào một tệp tin mới
 // fs.writeFileSync("decoded_example.jpg", decodedData);
-var today = new Date();
-
-var utcPlus7Date = new Date(today.getTime() + 7 * 60 * 60 * 1000);
-
-console.log("Ngày và giờ hiện tại:", today.toISOString());
-console.log("Ngày và giờ ở UTC+7:", utcPlus7Date.toISOString());
+let CODE_CHAT = (username1, username2) => {
+  var today = new Date();
+  var nowVN = new Date(today.getTime() + 7 * 60 * 60 * 1000);
+  let codeChat = nowVN + username1 + username2;
+  return codeChat;
+};
+let indongnay = CODE_CHAT("ABCC", "JQHBWEKNQWE");
+console.log(indongnay);

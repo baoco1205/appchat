@@ -1,6 +1,7 @@
 let { DBCONFIG } = require("../const");
 let userModel = require("../database/user");
-let chatModel = require("../database/chat");
+let chatRoomModel = require("../database/chatRoom");
+let chatPrivateModel = require("../database/chatPrivate");
 class databaseUtils {
   constructor() {}
 

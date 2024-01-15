@@ -9,33 +9,51 @@
     <script src="../public/controllerFE.js" type="text/javascript"></script>
     <!-- <script src="../public/controllerUpload.js" type="text/javascript"></script> -->
     <script src="../public/controllerIndex.js" type="text/javascript"></script>
-    <!-- <link rel="stylesheet" href="./public/css/styleIndex.css" /> -->
+    <link rel="stylesheet" href="../public/css/styleIndex.css" />
     <style>
       h2 {
         font-size: 40px;
       }
 
       #noiDung {
-        max-height: 50px;
-        overflow-y: scroll;
+        max-height: 200px;
+        overflow-y: auto;
+        /* position: fixed; */
+        width: 100%;
       }
     </style>
   </head>
   <body>
-    <h5 id="username"></h5>
-    <h4 id="noiDung"></h4>
-    <input id="boxChat" type="text" />
-    <button id="buttonSend" style="margin-bottom: 10px">Send</button>
-    <div>
-      <form
-        id="uploadForm"
-        action="http://localhost:3000/upload_file"
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <input type="file" name="file" /><br />
-        <input type="submit" value="upload" />
-      </form>
+    <div id="coverBox">
+      <div id="boxChatMain">
+        <h5 id="username"></h5>
+
+        <h4 id="noiDung"></h4>
+
+        <input id="boxChat" type="text" />
+        <button id="buttonSend" style="margin-bottom: 10px">Send</button>
+        <div>
+          <form
+            id="uploadForm"
+            action="http://localhost:3000/upload_file"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <input type="file" name="file" /><br />
+            <input type="submit" value="upload" />
+          </form>
+        </div>
+      </div>
+      <div id="listUserOnline">
+        <div>User online</div>
+        <div>
+          <ul>
+            <li>user1</li>
+            <li>user2</li>
+            <li>user3</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </body>
 </html>

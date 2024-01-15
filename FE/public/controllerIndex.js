@@ -66,7 +66,7 @@ $(document).ready(() => {
         $("#noiDung").append(msg.username + ": " + msg.msg + "<br>");
       });
       //Load msg:
-      fetch("http://localhost:3000/load_msg", {
+      fetch("http://localhost:3000/load_msg_room", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

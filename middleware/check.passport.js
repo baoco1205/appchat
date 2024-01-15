@@ -28,7 +28,7 @@ let strategy = new JwtStrategy(opts, function (jwt_payload, done) {
     .findById(id)
     .then((user) => {
       if (user) {
-        console.log("Pass passport");
+        // console.log("Pass passport");
         return done(null, user);
       } else {
         return done(null, false);

@@ -1,4 +1,24 @@
+// var socket = io("http://localhost:3000/");
+let token = localStorage.getItem("token");
 $(document).ready(() => {
+  ////Check login first
+  fetch("http://localhost:3000/get_username", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  }).then((data) => {
+    if (data.status === 401) {
+      // alert("U need logout first");
+    }
+    if (!data.ok) {
+      throw new Error("Network response was not ok");
+    }
+    console.log("test");
+    location.href = "http://127.0.0.1:5501/views/indextemp.html";
+  });
+
   $("#loginButton").click(() => {
     let username = $("#username").val();
     let password = $("#password").val();
@@ -36,5 +56,5 @@ $(document).ready(() => {
         console.error("There was a problem with the fetch operation:", error);
       });
   });
-  /////
+  /////checkLogin
 });

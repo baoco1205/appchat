@@ -9,8 +9,10 @@ const chatSchema = new Schema(
     historyChat: { type: String },
     date: { type: Date, default: NOW },
     username: { type: String, min: 6, max: 20 },
-  }
-  // { collection: "chatHistory" }
+    roomName: { type: String, default: 0 },
+    codeChatHistory: { type: String, default: 0 },
+  },
+  { collection: "chatRoom" }
 );
-const chatModel = mongoose.model("Chat", chatSchema);
-module.exports = chatModel;
+const chatRoomModel = mongoose.model("chatRoom", chatSchema);
+module.exports = chatRoomModel;
