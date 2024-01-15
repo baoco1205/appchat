@@ -2,6 +2,7 @@ let { DBCONFIG } = require("../const");
 let userModel = require("../database/user");
 let chatRoomModel = require("../database/chatRoom");
 let chatPrivateModel = require("../database/chatPrivate");
+let onlOffModel = require("../database/userOnlOff");
 class databaseUtils {
   constructor() {}
 

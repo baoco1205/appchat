@@ -6,6 +6,8 @@ app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
 let port = process.env.PORT;
 let chatRoomModel = require("./database/chatRoom");
+let userOnlOffModel = require("./database/userOnlOff");
+let { CHECK_ONL } = require("./const");
 let { NOW } = require("./const");
 // let socketConfig = require("./socket.io/socket");
 // app.use(socketConfig);
@@ -47,6 +49,7 @@ app.use((err, req, res, next) => {
 ///require const
 let DatabaseUtil = require("./utils/database.utils");
 const checkLogin = require("./controller/check.login");
+const { userInfo } = require("os");
 // /server connect database
 DatabaseUtil.connect(function (err) {
   if (err) response.responseErr(res, err, 500);
@@ -73,7 +76,33 @@ io.on("connection", (socket) => {
       })
       .catch((err) => {});
   });
+  ///// send img
   socket.on("sendIMG", (img) => {});
+  ///// thong bao nguoi dung nao dang onl
+  socket.on("notificationOnl", (userInfor) => {
+    userOnlOffModel
+      .findOne({ username: userInfor.username, token: userInfor.token })
+      .then((data) => {
+        if (!data) {
+          userOnlOffModel
+            .create({
+              username: userInfor.username,
+              token: userInfo.token,
+              status: CHECK_ONL.ONL,
+            })
+            .then((data1) => {
+              let username = data1.username;
+              socket.emit("serverNotificationOnl", { username });
+            })
+            .catch((err) => {
+              response.responseError(res, err, 405);
+            });
+        }
+      })
+      .catch((err) => {});
+    // io.sockets.emit("notificationOff", userOnOff);
+  });
+  ////
 });
 app.use("/home", (req, res) => {});
 server.listen(port, () => {

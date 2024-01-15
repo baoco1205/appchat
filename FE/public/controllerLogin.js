@@ -9,9 +9,6 @@ $(document).ready(() => {
       Authorization: `Bearer ${token}`,
     },
   }).then((data) => {
-    if (data.status === 401) {
-      // alert("U need logout first");
-    }
     if (!data.ok) {
       throw new Error("Network response was not ok");
     }

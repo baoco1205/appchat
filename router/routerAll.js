@@ -21,6 +21,6 @@ router.post("/upload_file", upload.single("file"), (req, res) => {
 });
 ///Chat
 router.get("/load_msg_room", checkPassport, controller.getMSGChatRoom);
-router.get("/check_history_chat", checkPassport, controller.checkHistoryChat);
+router.get("/load_msg_private", checkPassport, controller.getMSGChatPrivate);
 
 module.exports = router;

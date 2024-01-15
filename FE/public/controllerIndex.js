@@ -2,6 +2,12 @@ var socket = io("http://localhost:3000/");
 let token = localStorage.getItem("token");
 $(document).ready(() => {
   console.log(token);
+
+  ///logout
+  $("#logout").click(() => {
+    localStorage.removeItem("token");
+    location.href = "http://127.0.0.1:5501/views/login.html";
+  });
   /////
   document
     .getElementById("uploadForm")
@@ -53,7 +59,18 @@ $(document).ready(() => {
     })
     .then((user) => {
       let username = user.data;
+
+      /////notification user online
+      socket.emit("notificationOnl", { username, token });
+      socket.on("serverNotificationOnl", (username) => {
+        console.log(username);
+        $("#listUserOnline").append(username);
+      });
+      // socket.emit("notificationOff", { username, token });
+
+      /////hien thi username dang dang nhap
       $("#username").append(user.data);
+      // $("#noiDung").append(user.data + " has online");
       //send msg to server
       $("#buttonSend").click(() => {
         let msg = $("#boxChat").val();
@@ -74,8 +91,10 @@ $(document).ready(() => {
         },
       })
         .then((response) => {
-          let data = response.json();
-          console.log("data" + data);
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
         })
         .catch((err) => {
           console.log(err);

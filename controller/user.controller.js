@@ -4,6 +4,7 @@ let response = require("../controller/response");
 let bcrypt = require("bcrypt");
 let without = require("../controller/without");
 let chatRoomModel = require("../database/chatRoom");
+const chatPrivateModel = require("../database/chatPrivate");
 let createUser = (req, res) => {
   var { username, password, name, nickname } = req.body;
   console.log(req.body);
@@ -61,29 +62,45 @@ let getMSGChatRoom = (req, res) => {
       response.responseError(res, err, 404);
     });
 };
-let checkHistoryChat = (req, res) => {
-  username1 = req.user.username;
-  username2 = req.body.usernameNeedChat;
-  chatRoomModel
-    .find({ username: { $in: [username1, username2] } })
+let getMSGChatPrivate = (req, res) => {
+  let usernameReceiver = req.user.username;
+  let usernameSender = req.body.usernameSender;
+  chatPrivateModel
+    .find({
+      $or: [
+        [
+          { usernameReceiver: usernameReceiver },
+          { usernameSender: usernameSender },
+        ],
+        [
+          { usernameReceiver: usernameSender },
+          { usernameSender: usernameReceiver },
+        ],
+      ],
+    })
     .then((data) => {
-      let codeName1 = username1 + username2;
-      let codeName2 = username2 + username1;
-      for (let i = 0; i < data.length; i++) {
-        let codeChat = data[i].codeChatHistory;
-        if (
-          data.codeChatHistory.includes(codeName1) ||
-          data.codeChatHistory.includes(codeName2)
-        ) {
-          let userChat1 = [];
-          let userChat2 = [];
-          //Tra ve cac data chat cua user1 va user2.
-        } else {
+      if (!data) {
+        chatPrivateModel
+          .create({
+            codeChatHistory: usernameReceiver + usernameSender,
+          })
+          .then((data) => {
+            response.response(res, data);
+          });
+      } else {
+        let historyChat = [];
+        let userChat = [];
+        for (let i = 0; i < data.length; i++) {
+          let historyChatLoad = data[i].historyChat;
+          let userChatLoad = data[i].usernameReceiver;
+          historyChat.push(historyChatLoad);
+          userChat.push(userChatLoad);
         }
+        response.response(res, { historyChat, userChat });
       }
     })
     .catch((err) => {
-      responseError(res, err, 405);
+      response.responseError(res, err, 401);
     });
 };
-module.exports = { createUser, getUsername, getMSGChatRoom, checkHistoryChat };
+module.exports = { createUser, getUsername, getMSGChatRoom, getMSGChatPrivate };

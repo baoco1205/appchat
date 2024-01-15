@@ -39,21 +39,22 @@
             method="post"
             enctype="multipart/form-data"
           >
-            <input type="file" name="file" /><br />
-            <input type="submit" value="upload" />
+            <input type="file" name="file" style="margin: 20px" /><br />
+            <input type="submit" value="upload" style="margin: 20px" />
           </form>
         </div>
       </div>
-      <div id="listUserOnline">
+      <div>
         <div>User online</div>
         <div>
           <ul>
-            <li>user1</li>
+            <li id="listUserOnline"></li>
             <li>user2</li>
             <li>user3</li>
           </ul>
         </div>
       </div>
     </div>
+    <div><button id="logout" style="margin: 20px">LOGOUT</button></div>
   </body>
 </html>

@@ -42,11 +42,12 @@ var checkLogin = function (req, res, next) {
         }
         var id = data._id.toString();
         let token = jwt.sign({ id }, KEY_TOKEN, {
-          expiresIn: "2d",
+          expiresIn: "365d",
         });
         const { password, ...other } = data._doc;
         // req.user = { data: { ...other }, token: token };
         console.log("pass login");
+        console.log(req.headers);
         return res.json({ message: "login success", token: token });
       });
     })
