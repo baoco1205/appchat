@@ -3,11 +3,6 @@ let token = localStorage.getItem("token");
 $(document).ready(() => {
   console.log(token);
 
-  ///logout
-  $("#logout").click(() => {
-    localStorage.removeItem("token");
-    location.href = "http://127.0.0.1:5501/views/login.html";
-  });
   /////
   document
     .getElementById("uploadForm")
@@ -62,11 +57,23 @@ $(document).ready(() => {
 
       /////notification user online
       socket.emit("notificationOnl", { username, token });
-      socket.on("serverNotificationOnl", (username) => {
-        console.log(username);
-        $("#listUserOnline").append(username);
+      socket.on("serverNotificationOnl", (listUserOnline) => {
+        console.log(listUserOnline.userNameOnl);
+        let arrayUsernameOnl = listUserOnline.userNameOnl;
+        for (const username of arrayUsernameOnl) {
+          // console.log(username);
+          $("#userList").empty();
+          $("#userList").append(`<li>${username}</li>`);
+        }
       });
-      // socket.emit("notificationOff", { username, token });
+
+      /////notification user offline
+      ///logout
+      $("#logout").click(() => {
+        socket.emit("notificationOff", { username, token });
+        localStorage.removeItem("token");
+        location.href = "http://127.0.0.1:5501/views/login.html";
+      });
 
       /////hien thi username dang dang nhap
       $("#username").append(user.data);
@@ -91,10 +98,20 @@ $(document).ready(() => {
         },
       })
         .then((response) => {
+          // console.log(response);
           return response.json();
         })
         .then((data) => {
-          console.log(data);
+          // console.log("Tin nhan truoc do ");
+          let msg = data.data.chat;
+          let date = data.data.date;
+          let username = data.data.username;
+          let index = data.data.username.length;
+          console.log("index: " + index);
+          for (let i = index - 1; i >= 0; i--) {
+            console.log(i);
+            $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");
+          }
         })
         .catch((err) => {
           console.log(err);

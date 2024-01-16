@@ -45,18 +45,23 @@ let getUsername = (req, res) => {
 let getMSGChatRoom = (req, res) => {
   let username = req.user.username;
   chatRoomModel
-    .find({ username: username })
+    .find({})
+    .sort({ createdAt: -1 })
     .then((data) => {
       let msg = [];
       let date = [];
+      let username = [];
+
       for (let i = 0; i < data.length; i++) {
         let msgTemp = data[i].historyChat;
-        let dateTemp = data[i].date;
+        let dateTemp = data[i].createdAt;
+        let usernameTemp = data[i].username;
         msg.push(msgTemp);
         date.push(dateTemp);
+        username.push(usernameTemp);
       }
 
-      response.response(res, { chat: msg, date: date });
+      response.response(res, { chat: msg, date: date, username: username });
     })
     .catch((err) => {
       response.responseError(res, err, 404);

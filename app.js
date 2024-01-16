@@ -48,8 +48,8 @@ app.use((err, req, res, next) => {
 
 ///require const
 let DatabaseUtil = require("./utils/database.utils");
-const checkLogin = require("./controller/check.login");
-const { userInfo } = require("os");
+// const checkLogin = require("./controller/check.login");
+// const { userInfo } = require("os");
 // /server connect database
 DatabaseUtil.connect(function (err) {
   if (err) response.responseErr(res, err, 500);
@@ -65,6 +65,7 @@ io.on("connection", (socket) => {
   //xu ly gui va nhan tin nhan
   socket.on("sendMSG", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
+
     chatRoomModel
       .create({
         historyChat: msg.msg,
@@ -72,39 +73,114 @@ io.on("connection", (socket) => {
         username: msg.username,
       })
       .then((data) => {
-        io.sockets.emit("serverSendMSG", msg);
+        ///
+        chatRoomModel
+          .find({})
+          .sort({ createdAt: -1 })
+          .then((data) => {
+            let historyChatTemp = [];
+            for (let i = 0; i < data.length; i++) {
+              let chat = data[i].historyChat;
+              historyChatTemp.push(chat);
+            }
+            console.log(historyChatTemp);
+            io.sockets.emit("serverSendMSG", msg);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        ///
+        // io.sockets.emit("serverSendMSG", msg);
       })
       .catch((err) => {});
   });
   ///// send img
   socket.on("sendIMG", (img) => {});
-  ///// thong bao nguoi dung nao dang onl
+  ///// thong bao nguoi dung nao dang online
   socket.on("notificationOnl", (userInfor) => {
+    let token = userInfor.token;
     userOnlOffModel
-      .findOne({ username: userInfor.username, token: userInfor.token })
+      .findOne({ username: userInfor.username, token: token })
       .then((data) => {
         if (!data) {
           userOnlOffModel
             .create({
               username: userInfor.username,
-              token: userInfo.token,
+              token: token,
               status: CHECK_ONL.ONL,
             })
             .then((data1) => {
               let username = data1.username;
-              socket.emit("serverNotificationOnl", { username });
+              userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
+                let userNameOnl = [];
+                for (let i = 0; i < data.length; i++) {
+                  let usernameTemp = data[i].username;
+                  userNameOnl.push(usernameTemp);
+                }
+                io.sockets.emit("serverNotificationOnl", { userNameOnl });
+              });
             })
             .catch((err) => {
               response.responseError(res, err, 405);
             });
+        } else {
+          /// xử lý lúc user đã có trong data vẫn trả về mảng các tk đã đăng nhập
+          userOnlOffModel.find({ status: 1 }).then((data) => {
+            let userNameOnl = [];
+            for (let i = 0; i < data.length; i++) {
+              let usernameTemp = data[i].username;
+              userNameOnl.push(usernameTemp);
+            }
+            io.sockets.emit("serverNotificationOnl", { userNameOnl });
+          });
         }
       })
-      .catch((err) => {});
-    // io.sockets.emit("notificationOff", userOnOff);
+      .catch((err) => {
+        response.responseError(res, err, 405);
+      });
   });
-  ////
+
+  ////thong bao nguoi dung offline
+  socket.on("notificationOff", (userOff) => {
+    let token = userOff.token;
+    let username = userOff.username;
+    userOnlOffModel
+      .find({ username: username, token: token })
+      .then((data) => {
+        if (!data) {
+          console.log("Client do something not true :( ");
+          let msgErr = "Have some err at Server";
+          response.responseError(res, { msgErr }, 404);
+        }
+        userOnlOffModel
+          .findOneAndUpdate(
+            { username: username, token: token },
+            { $set: { status: CHECK_ONL.OFF } },
+            { new: true }
+          )
+          .then((data) => {
+            if (!data) {
+              console.log("loi o server roi. ko update status onl dc ");
+              let msgErr = "Have some err at Server";
+              response.responseError(res, { msgErr }, 404);
+            }
+            userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
+              let userNameOnl = [];
+              for (let i = 0; i < data.length; i++) {
+                let usernameTemp = data[i].username;
+                userNameOnl.push(usernameTemp);
+              }
+              io.sockets.emit("serverNotificationOnl", { userNameOnl });
+            });
+          });
+      })
+      .catch((err) => {
+        response.responseError(res, err, 405);
+      });
+  });
+  //
 });
-app.use("/home", (req, res) => {});
+
 server.listen(port, () => {
   console.log("Connect at port:" + port);
 });

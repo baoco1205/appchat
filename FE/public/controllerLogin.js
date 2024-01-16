@@ -19,7 +19,7 @@ $(document).ready(() => {
   $("#loginButton").click(() => {
     let username = $("#username").val();
     let password = $("#password").val();
-    console.log(username, password);
+    // console.log(username, password);
 
     fetch("http://localhost:3000/login", {
       method: "POST",
@@ -42,7 +42,7 @@ $(document).ready(() => {
         return response.json();
       })
       .then((data) => {
-        console.log(data.token);
+        // console.log(data.token);
         let token = data.token;
         localStorage.setItem("token", token);
         location.href = "http://127.0.0.1:5501/views/indextemp.html";
