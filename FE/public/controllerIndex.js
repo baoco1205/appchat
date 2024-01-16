@@ -102,9 +102,10 @@ $(document).ready(() => {
           return response.json();
         })
         .then((data) => {
+          var noiDung = document.getElementById("noiDung");
+
           // console.log("Tin nhan truoc do ");
           let msg = data.data.chat;
-          let date = data.data.date;
           let username = data.data.username;
           let index = data.data.username.length;
           console.log("index: " + index);
@@ -112,6 +113,7 @@ $(document).ready(() => {
             console.log(i);
             $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");
           }
+          noiDung.scrollTop = noiDung.scrollHeight;
         })
         .catch((err) => {
           console.log(err);
