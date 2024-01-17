@@ -48,6 +48,7 @@ app.use((err, req, res, next) => {
 
 ///require const
 let DatabaseUtil = require("./utils/database.utils");
+const userModel = require("./database/user");
 // const checkLogin = require("./controller/check.login");
 // const { userInfo } = require("os");
 // /server connect database
@@ -96,28 +97,71 @@ io.on("connection", (socket) => {
   });
   ///// send img
   socket.on("sendIMG", (img) => {});
+  ///// tra lai list tat ca nguoi dung da dang ki
+  socket.on("loadAllUser", () => {
+    userModel
+      .find({})
+      .then((data) => {
+        let allUsername = [];
+        let allID = [];
+        for (let i = 0; i < data.length; i++) {
+          let usernameTemp = data[i].username;
+          let idTemp = data[i]._id.toString();
+          allUsername.push(usernameTemp);
+          allID.push(idTemp);
+        }
+        socket.emit("serverSendAllUser", { username: allUsername, id: allID });
+      })
+      .catch((err) => {});
+  });
   ///// thong bao nguoi dung nao dang online
   socket.on("notificationOnl", (userInfor) => {
+    let username = userInfor.username;
     let token = userInfor.token;
+    //check xem nguoi dung da online chua.
     userOnlOffModel
-      .findOne({ username: userInfor.username, token: token })
+      .findOne({ username: username, token: token })
       .then((data) => {
+        //neu db khong co du lieu dang onl.
+        //tao 1 status online cho ng dung
         if (!data) {
           userOnlOffModel
             .create({
-              username: userInfor.username,
+              username: username,
               token: token,
               status: CHECK_ONL.ONL,
             })
             .then((data1) => {
               let username = data1.username;
               userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
-                let userNameOnl = [];
+                //lay danh sach nhung nguoi dang online bang status
+
+                let usernameOnl = [];
                 for (let i = 0; i < data.length; i++) {
                   let usernameTemp = data[i].username;
-                  userNameOnl.push(usernameTemp);
+                  usernameOnl.push(usernameTemp);
                 }
-                io.sockets.emit("serverNotificationOnl", { userNameOnl });
+
+                userModel
+                  .find({ username: { $in: usernameOnl } })
+                  .then((dataUser) => {
+                    let getUsername = [];
+                    let getIDUser = [];
+                    console.log("vao day");
+                    // console.log("testttqwzxqawe: " + dataUser);
+                    for (let i = 0; i < dataUser.length; i++) {
+                      let getUsernameTemp = dataUser[i].username;
+                      let getIDUserTemp = dataUser[i]._id.toString();
+                      getUsername.push(getUsernameTemp);
+                      getIDUser.push(getIDUserTemp);
+                    }
+                    console.log(getUsername);
+                    console.log(getIDUser);
+                    io.sockets.emit("serverNotificationOnl", {
+                      usernameOnl: getUsername,
+                      userID: getIDUser,
+                    });
+                  });
               });
             })
             .catch((err) => {
@@ -126,12 +170,20 @@ io.on("connection", (socket) => {
         } else {
           /// xử lý lúc user đã có trong data vẫn trả về mảng các tk đã đăng nhập
           userOnlOffModel.find({ status: 1 }).then((data) => {
-            let userNameOnl = [];
+            console.log("vao cai nay phai k ");
+
+            let usernameOnl = [];
+            let userID = [];
             for (let i = 0; i < data.length; i++) {
               let usernameTemp = data[i].username;
-              userNameOnl.push(usernameTemp);
+              let IDTemp = data[i]._id.toString();
+              usernameOnl.push(usernameTemp);
+              userID.push(IDTemp);
             }
-            io.sockets.emit("serverNotificationOnl", { userNameOnl });
+            io.sockets.emit("serverNotificationOnl", {
+              usernameOnl: usernameOnl,
+              userID: userID,
+            });
           });
         }
       })
@@ -165,12 +217,18 @@ io.on("connection", (socket) => {
               response.responseError(res, { msgErr }, 404);
             }
             userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
-              let userNameOnl = [];
+              let usernameOnl = [];
+              let userID = [];
               for (let i = 0; i < data.length; i++) {
                 let usernameTemp = data[i].username;
-                userNameOnl.push(usernameTemp);
+                let idTemp = data[i].username;
+                usernameOnl.push(usernameTemp);
+                userID.push(idTemp);
               }
-              io.sockets.emit("serverNotificationOnl", { userNameOnl });
+              io.sockets.emit("serverNotificationOnl", {
+                usernameOnl: usernameOnl,
+                userID: userID,
+              });
             });
           });
       })

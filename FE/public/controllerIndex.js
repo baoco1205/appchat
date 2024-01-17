@@ -1,7 +1,8 @@
 var socket = io("http://localhost:3000/");
 let token = localStorage.getItem("token");
+
 $(document).ready(() => {
-  console.log(token);
+  // console.log(token);
 
   /////
   document
@@ -48,23 +49,54 @@ $(document).ready(() => {
       if (!data.ok) {
         throw new Error("Network response was not ok");
       }
-      console.log(data);
-
+      // console.log(data);
       return data.json();
     })
     .then((user) => {
       let username = user.data;
 
+      /////load all user
+      socket.emit("loadAllUser", {});
+      socket.on("serverSendAllUser", (listAllUser) => {
+        // console.log(listAllUser);// tra ve username va userID
+        let listAllUsers = listAllUser.username;
+        $("#allUserList").empty();
+        for (const username of listAllUsers) {
+          $("#allUserList").append(`<li>${username}</li>`);
+        }
+      });
+
       /////notification user online
       socket.emit("notificationOnl", { username, token });
       socket.on("serverNotificationOnl", (listUserOnline) => {
-        console.log(listUserOnline.userNameOnl);
-        let arrayUsernameOnl = listUserOnline.userNameOnl;
-        for (const username of arrayUsernameOnl) {
-          // console.log(username);
-          $("#userList").empty();
-          $("#userList").append(`<li>${username}</li>`);
+        // console.log(listUserOnline);
+        // console.log(listUserOnline.usernameOnl);
+        // console.log(listUserOnline.userID);
+
+        let length = listUserOnline.usernameOnl.length;
+        console.log(length);
+        $("#userList").empty();
+        for (let i = 0; i < length; i++) {
+          let userOnl = listUserOnline.usernameOnl[i];
+          let id = listUserOnline.userID[i];
+
+          // Tạo thẻ li với sự kiện click được gắn liền
+          let listItem = $(
+            // `<li id="${id}"><a href="privatechat?id=${id}">${userOnl}</a></li>`
+            `<li">${i + 1 + ". "}${userOnl}</li><br>`
+          );
+          // Gắn sự kiện click cho thẻ li
+          listItem.click(() => {
+            alert(`invited add friend to ${userOnl} `);
+          });
+          // Thêm thẻ li vào #userList
+          $("#userList").append(listItem);
         }
+        // $("#userList").empty();
+        // for (const username of arrayUsernameOnl) {
+        //   // console.log(username);
+        //   $("#userList").append(`<li>${username}</li>`);
+        // }
       });
 
       /////notification user offline
@@ -108,9 +140,8 @@ $(document).ready(() => {
           let msg = data.data.chat;
           let username = data.data.username;
           let index = data.data.username.length;
-          console.log("index: " + index);
+          // console.log("index: " + index);
           for (let i = index - 1; i >= 0; i--) {
-            console.log(i);
             $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");
           }
           noiDung.scrollTop = noiDung.scrollHeight;

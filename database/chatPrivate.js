@@ -7,12 +7,12 @@ const { NOW } = require("../const");
 const chatPrivateSchema = new Schema(
   {
     historyChat: { type: String },
-    date: { type: Date, default: NOW },
+
     usernameReceiver: { type: String, min: 6, max: 20 },
     usernameSender: { type: String, min: 6, max: 20 },
     codeChatHistory: { type: String, default: 0 },
   },
-  { collection: "chatPrivate" }
+  { collection: "chatPrivate", timestamps: true }
 );
 const chatPrivateModel = mongoose.model("chatPrivate", chatPrivateSchema);
 module.exports = chatPrivateModel;

@@ -11,7 +11,12 @@ router.post("/login", checkLogin);
 router.get("/");
 router.post("/users");
 router.get("/get_username", checkPassport, controller.getUsername);
+router.get("/get_id_user", checkPassport, controller.getIDUser);
+///friend
+router.get("/add_friend", checkPassport, controller.addFriend);
+router.get("/remove_friend");
 
+///upload file
 router.post("/upload_file", upload.single("file"), (req, res) => {
   if (req.file === undefined) {
     response.responseError(res, "Don't empty file", 412);

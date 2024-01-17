@@ -42,6 +42,28 @@ let getUsername = (req, res) => {
   let username = req.user.username;
   response.response(res, username);
 };
+let getIDUser = (req, res) => {
+  console.log(req.user);
+  // let id = req.user._id;
+  response.response(res, "1");
+};
+///friend
+let addFriend = (req, res) => {
+  console.log(req.user);
+  // let id = req.user._id;
+  response.response(res, "1");
+};
+let removeFriend = (req, res) => {
+  console.log(req.user);
+  // let id = req.user._id;
+  response.response(res, "1");
+};
+let loadFriendList = (req, res) => {
+  console.log(req.user);
+  // let id = req.user._id;
+  response.response(res, "1");
+};
+
 let getMSGChatRoom = (req, res) => {
   let username = req.user.username;
   chatRoomModel
@@ -108,4 +130,13 @@ let getMSGChatPrivate = (req, res) => {
       response.responseError(res, err, 401);
     });
 };
-module.exports = { createUser, getUsername, getMSGChatRoom, getMSGChatPrivate };
+module.exports = {
+  createUser,
+  getUsername,
+  getMSGChatRoom,
+  getMSGChatPrivate,
+  getIDUser,
+  addFriend,
+  removeFriend,
+  loadFriendList,
+};

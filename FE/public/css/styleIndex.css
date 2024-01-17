@@ -18,3 +18,10 @@
   flex-wrap: nowrap;
   /* padding: 2.5em 0; */
 }
+#listUser {
+  display: flex;
+  gap: 20px;
+}
+ul {
+  list-style-type: decimal;
+}
