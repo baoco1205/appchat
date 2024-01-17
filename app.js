@@ -225,7 +225,7 @@ io.on("connection", (socket) => {
                 usernameOnl.push(usernameTemp);
                 userID.push(idTemp);
               }
-              io.sockets.emit("serverNotificationOnl", {
+              socket.broadcast.emit("serverNotificationOnl", {
                 usernameOnl: usernameOnl,
                 userID: userID,
               });
