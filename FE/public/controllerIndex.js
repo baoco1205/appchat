@@ -2,7 +2,8 @@ var socket = io("http://localhost:3000/");
 let token = localStorage.getItem("token");
 
 $(document).ready(() => {
-  // console.log(token);
+  /////chay khi star//////
+  socket.emit("loadRoomList", {});
 
   /////
   document
@@ -20,7 +21,9 @@ $(document).ready(() => {
       body: formdata,
       // redirect: "follow",
     };
-
+    socket.on("error", (error) => {
+      alert(error);
+    });
     fetch("http://localhost:3000/upload_file", requestOptions)
       .then((response) => {
         console.log("TESTT");
@@ -55,6 +58,8 @@ $(document).ready(() => {
     .then((user) => {
       let username = user.data;
 
+      //gui username
+      socket.emit("clientSendUsername", username);
       /////load all user
       socket.emit("loadAllUser", {});
       socket.on("serverSendAllUser", (listAllUser) => {
@@ -92,11 +97,6 @@ $(document).ready(() => {
           // Thêm thẻ li vào #userList
           $("#userList").append(listItem);
         }
-        // $("#userList").empty();
-        // for (const username of arrayUsernameOnl) {
-        //   // console.log(username);
-        //   $("#userList").append(`<li>${username}</li>`);
-        // }
       });
 
       /////notification user offline
@@ -113,13 +113,16 @@ $(document).ready(() => {
       //send msg to server
       $("#buttonSend").click(() => {
         let msg = $("#boxChat").val();
-        socket.emit("sendMSG", { msg, username });
+        socket.emit("sendMSGRoom", { msg, username });
         document.getElementById("boxChat").value = "";
       });
       //server send msg
-      socket.on("serverSendMSG", (msg) => {
+      socket.on("serverSendMSGRoom", (msg) => {
+        var noiDung = document.getElementById("noiDung");
+
         console.log(msg);
         $("#noiDung").append(msg.username + ": " + msg.msg + "<br>");
+        noiDung.scrollTop = noiDung.scrollHeight;
       });
       //Load msg:
       fetch("http://localhost:3000/load_msg_room", {
@@ -149,6 +152,26 @@ $(document).ready(() => {
         .catch((err) => {
           console.log(err);
         });
+      ////////////////////////////ROOM////////////////////////
+      ///Tao room
+      $("#createRoomButton").click(() => {
+        let roomName = $("#roomName").val();
+        console.log(roomName);
+        socket.emit("createRoom", roomName);
+        document.getElementById("roomName").value = "";
+      });
+      //server tra ve roomlist
+      socket.on("serverSendRoomList", (data) => {
+        ///data co mang roomlist
+        $("#roomAlready").empty();
+        let roomList = data.roomList;
+        console.log(data);
+
+        for (let i = 0; i < roomList.length; i++) {
+          $("#roomAlready").append(roomList[i] + "<br>");
+        }
+      });
+
       ///client send hinh anh
       // document
       //   .getElementById("uploadForm")

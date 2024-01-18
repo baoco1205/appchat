@@ -62,15 +62,84 @@ app.use("", router);
 //socket
 //server xu ly chat
 io.on("connection", (socket) => {
-  console.log("Have user joint: " + socket.id);
+  // console.log("Have user joint: " + socket.id);
+  ///get username
+  socket.on("clientSendUsername", (username) => {
+    socket.username = username;
+
+    console.log("user: " + socket.username + " vua dang nhap");
+  });
+
   //xu ly gui va nhan tin nhan
-  socket.on("sendMSG", (msg) => {
+  /////Chat Room
+  /////Tao Room
+  socket.on("createRoom", (roomName) => {
+    let username = socket.username;
+    chatRoomModel
+      .findOne({ roomName: roomName })
+      .then((data) => {
+        if (!data) {
+          console.log("room chua ton tai.tao room moi");
+          chatRoomModel.create({ roomName: roomName }).then((data) => {
+            chatRoomModel.find().then((data) => {
+              socket.join(roomName);
+              let roomList = [];
+              for (let i = 0; i < data.length; i++) {
+                let roomTemp = data[i].roomName;
+                roomList.push(roomTemp);
+              }
+              io.sockets.emit("serverSendRoomList", { roomList });
+            });
+          });
+        } else {
+          console.log("room da ton tai");
+          socket.join(roomName);
+          // let arraySocketRoom = socket.adapter.rooms;
+          // console.log(socket.adapter.rooms);
+          let roomList = [];
+          chatRoomModel
+            .find()
+            .then((data) => {
+              for (let i = 0; i < data.length; i++) {
+                let roomTemp = data[i].roomName;
+                roomList.push(roomTemp);
+              }
+              io.sockets.emit("serverSendRoomList", { roomList });
+            })
+            .catch((err) => {
+              response.responseError(res, err, 500);
+            });
+        }
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
+  });
+  ///////Tra ve room dang hoat dong
+  socket.on("loadRoomList", () => {
+    let arraySocketRoom = socket.adapter.rooms;
+    console.log(socket.adapter.rooms);
+    chatRoomModel
+      .find()
+      .then((data) => {
+        let roomList = [];
+        for (let i = 0; i < data.length; i++) {
+          let roomTemp = data[i].roomName;
+          roomList.push(roomTemp);
+        }
+        io.sockets.emit("serverSendRoomList", { roomList });
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
+  });
+  socket.on("sendMSGRoom", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
 
+    // chatRoomModel.find({roomName:})
     chatRoomModel
       .create({
         historyChat: msg.msg,
-        date: NOW,
         username: msg.username,
       })
       .then((data) => {
@@ -85,13 +154,13 @@ io.on("connection", (socket) => {
               historyChatTemp.push(chat);
             }
             console.log(historyChatTemp);
-            io.sockets.emit("serverSendMSG", msg);
+            io.sockets.emit("serverSendMSGRoom", msg);
           })
           .catch((err) => {
             console.log(err);
           });
         ///
-        // io.sockets.emit("serverSendMSG", msg);
+        // io.sockets.emit("serverSendMSGRoom", msg);
       })
       .catch((err) => {});
   });

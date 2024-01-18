@@ -7,11 +7,11 @@ const { NOW } = require("../const");
 const chatSchema = new Schema(
   {
     historyChat: { type: String },
-    date: { type: Date, default: NOW },
-    username: { type: String, min: 6, max: 20 },
+    username: { type: String, min: 1 },
+    listUser: { type: String, min: 1 },
     roomName: { type: String, default: 0 },
     codeChatHistory: { type: String, default: 0 },
-    index: { type: Number },
+    // index: { type: Number },
   },
   { collection: "chatRoom", timestamps: true }
 );

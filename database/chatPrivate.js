@@ -7,9 +7,8 @@ const { NOW } = require("../const");
 const chatPrivateSchema = new Schema(
   {
     historyChat: { type: String },
-
-    usernameReceiver: { type: String, min: 6, max: 20 },
-    usernameSender: { type: String, min: 6, max: 20 },
+    usernameReceiver: { type: String, min: 1, max: 20 },
+    usernameSender: { type: String, min: 1, max: 20 },
     codeChatHistory: { type: String, default: 0 },
   },
   { collection: "chatPrivate", timestamps: true }
