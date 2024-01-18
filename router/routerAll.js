@@ -25,7 +25,7 @@ router.post("/upload_file", upload.single("file"), (req, res) => {
   console.log("Upload success");
 });
 ///Chat
-router.get("/load_msg_room", checkPassport, controller.getMSGChatRoom);
-router.get("/load_msg_private", checkPassport, controller.getMSGChatPrivate);
+router.post("/load_msg_room", checkPassport, controller.getMSGChatRoom);
+router.post("/load_msg_private", checkPassport, controller.getMSGChatPrivate);
 
 module.exports = router;

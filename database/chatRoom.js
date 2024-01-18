@@ -9,7 +9,7 @@ const chatSchema = new Schema(
     historyChat: { type: String },
     username: { type: String, min: 1 },
     listUser: { type: String, min: 1 },
-    roomName: { type: String, default: 0 },
+    roomName: { type: String, default: 0, min: 1 },
     codeChatHistory: { type: String, default: 0 },
     // index: { type: Number },
   },

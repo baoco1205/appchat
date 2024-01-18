@@ -4,7 +4,9 @@ let token = localStorage.getItem("token");
 $(document).ready(() => {
   /////chay khi star//////
   socket.emit("loadRoomList", {});
-
+  socket.on("error", (error) => {
+    alert(error);
+  });
   /////
   document
     .getElementById("uploadForm")
@@ -21,9 +23,7 @@ $(document).ready(() => {
       body: formdata,
       // redirect: "follow",
     };
-    socket.on("error", (error) => {
-      alert(error);
-    });
+
     fetch("http://localhost:3000/upload_file", requestOptions)
       .then((response) => {
         console.log("TESTT");
@@ -86,10 +86,7 @@ $(document).ready(() => {
           let id = listUserOnline.userID[i];
 
           // Tạo thẻ li với sự kiện click được gắn liền
-          let listItem = $(
-            // `<li id="${id}"><a href="privatechat?id=${id}">${userOnl}</a></li>`
-            `<li">${i + 1 + ". "}${userOnl}</li><br>`
-          );
+          let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li><br>`);
           // Gắn sự kiện click cho thẻ li
           listItem.click(() => {
             alert(`invited add friend to ${userOnl} `);
@@ -119,39 +116,15 @@ $(document).ready(() => {
       //server send msg
       socket.on("serverSendMSGRoom", (msg) => {
         var noiDung = document.getElementById("noiDung");
-
+        let numbMSG = msg.msg.length;
         console.log(msg);
-        $("#noiDung").append(msg.username + ": " + msg.msg + "<br>");
-        noiDung.scrollTop = noiDung.scrollHeight;
-      });
-      //Load msg:
-      fetch("http://localhost:3000/load_msg_room", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => {
-          // console.log(response);
-          return response.json();
-        })
-        .then((data) => {
-          var noiDung = document.getElementById("noiDung");
-
-          // console.log("Tin nhan truoc do ");
-          let msg = data.data.chat;
-          let username = data.data.username;
-          let index = data.data.username.length;
-          // console.log("index: " + index);
-          for (let i = index - 1; i >= 0; i--) {
-            $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");
-          }
+        document.getElementById("noiDung").value = "";
+        for (let i = numbMSG; i >= 0; i--) {
+          $("#noiDung").append(msg.username + ": " + msg.msg[i] + "<br>");
           noiDung.scrollTop = noiDung.scrollHeight;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        }
+      });
+
       ////////////////////////////ROOM////////////////////////
       ///Tao room
       $("#createRoomButton").click(() => {
@@ -166,12 +139,50 @@ $(document).ready(() => {
         $("#roomAlready").empty();
         let roomList = data.roomList;
         console.log(data);
-
         for (let i = 0; i < roomList.length; i++) {
-          $("#roomAlready").append(roomList[i] + "<br>");
+          let nameRoom = roomList[i];
+          let listItem = $(`<li>${roomList[i]}</li><br>`);
+          listItem.click(() => {
+            let roomNow = $("#roomJoing").text();
+            // console.log(roomNow);
+            $("#roomJoing").empty();
+            $("#roomJoing").append("You in room: " + roomList[i]);
+            socket.emit("joinRoom", { nameRoom, roomNow });
+            ///load tin nhan trong room
+            //Load msg:
+            fetch("http://localhost:3000/load_msg_room", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ nameRoom: nameRoom }),
+            })
+              .then((response) => {
+                // console.log(response);
+                return response.json();
+              })
+              .then((data) => {
+                var noiDung = document.getElementById("noiDung");
+
+                // console.log("Tin nhan truoc do ");
+                let msg = data.data.chat;
+                let username = data.data.username;
+                let index = data.data.username.length;
+                // console.log("index: " + index);
+                for (let i = index - 1; i >= 0; i--) {
+                  $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");
+                }
+                noiDung.scrollTop = noiDung.scrollHeight;
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+            ///
+          });
+          $("#roomAlready").append(listItem);
         }
       });
-
       ///client send hinh anh
       // document
       //   .getElementById("uploadForm")

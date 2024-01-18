@@ -62,7 +62,6 @@ app.use("", router);
 //socket
 //server xu ly chat
 io.on("connection", (socket) => {
-  // console.log("Have user joint: " + socket.id);
   ///get username
   socket.on("clientSendUsername", (username) => {
     socket.username = username;
@@ -115,11 +114,22 @@ io.on("connection", (socket) => {
         response.responseError(res, err, 500);
       });
   });
+  //////join Room
+  socket.on("joinRoom", (data) => {
+    let nameRoom = data.nameRoom;
+    let roomNowTemp = data.roomNow;
+    let roomNow = roomNowTemp.slice(13);
+    // console.log("leaknsjdbqwe: " + roomNow);
+    socket.roomName = nameRoom;
+    socket.leave(roomNow);
+    socket.join(nameRoom);
+    // console.log(socket.adapter.rooms);
+    console.log("pass join room");
+  });
   ///////Tra ve room dang hoat dong
-  socket.on("loadRoomList", () => {
-    let arraySocketRoom = socket.adapter.rooms;
-    console.log(socket.adapter.rooms);
-    chatRoomModel
+  socket.on("loadRoomList", async () => {
+    // console.log(socket.adapter.rooms);
+    await chatRoomModel
       .find()
       .then((data) => {
         let roomList = [];
@@ -135,34 +145,81 @@ io.on("connection", (socket) => {
   });
   socket.on("sendMSGRoom", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
+    let roomName = socket.roomName;
+    let username = socket.username;
+    console.log(roomName);
+    if (
+      typeof roomName != "string" ||
+      typeof roomName === "undefined" ||
+      roomName === undefined
+    ) {
+      let msg = "Pls choose room need chat";
+      socket.emit("error", msg);
+    } else {
+      chatRoomModel
+        .find({ roomName: roomName })
+        .then((data) => {
+          // console.log(data);
+          chatRoomModel
+            .create({
+              roomName: roomName,
+              username: username,
+              historyChat: msg.msg,
+            })
+            .then((data) => {
+              chatRoomModel
+                .find({ roomName: roomName })
+                .sort({ createdAt: -1 })
+                .then((data) => {
+                  let historyChatTemp = [];
+                  for (let i = 0; i < data.length; i++) {
+                    let chat = data[i].historyChat;
+                    historyChatTemp.push(chat);
+                  }
+                  console.log(historyChatTemp);
+                  io.sockets.in(roomName).emit("serverSendMSGRoom", {
+                    msg: historyChatTemp,
+                    username: username,
+                  });
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+              ///
+              // io.sockets.emit("serverSendMSGRoom", msg);
+            });
+        })
+        .catch((err) => {
+          response.responseError(res, err, 500);
+        });
+    }
 
-    // chatRoomModel.find({roomName:})
-    chatRoomModel
-      .create({
-        historyChat: msg.msg,
-        username: msg.username,
-      })
-      .then((data) => {
-        ///
-        chatRoomModel
-          .find({})
-          .sort({ createdAt: -1 })
-          .then((data) => {
-            let historyChatTemp = [];
-            for (let i = 0; i < data.length; i++) {
-              let chat = data[i].historyChat;
-              historyChatTemp.push(chat);
-            }
-            console.log(historyChatTemp);
-            io.sockets.emit("serverSendMSGRoom", msg);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        ///
-        // io.sockets.emit("serverSendMSGRoom", msg);
-      })
-      .catch((err) => {});
+    // chatRoomModel
+    //   .create({
+    //     historyChat: msg.msg,
+    //     username: msg.username,
+    //   })
+    //   .then((data) => {
+    //     ///
+    //     chatRoomModel
+    //       .find({})
+    //       .sort({ createdAt: -1 })
+    //       .then((data) => {
+    //         let historyChatTemp = [];
+    //         for (let i = 0; i < data.length; i++) {
+    //           let chat = data[i].historyChat;
+    //           historyChatTemp.push(chat);
+    //         }
+    //         console.log(historyChatTemp);
+    //         io.sockets.emit("serverSendMSGRoom", msg);
+    //       })
+    //       .catch((err) => {
+    //         console.log(err);
+    //       });
+    //     ///
+    //     // io.sockets.emit("serverSendMSGRoom", msg);
+    //   })
+    //   .catch((err) => {});
   });
   ///// send img
   socket.on("sendIMG", (img) => {});
@@ -239,7 +296,7 @@ io.on("connection", (socket) => {
         } else {
           /// xử lý lúc user đã có trong data vẫn trả về mảng các tk đã đăng nhập
           userOnlOffModel.find({ status: 1 }).then((data) => {
-            console.log("vao cai nay phai k ");
+            // console.log("vao cai nay phai k ");
 
             let usernameOnl = [];
             let userID = [];

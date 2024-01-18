@@ -39,3 +39,14 @@ ul {
   display: flex;
   justify-content: space-around;
 }
+
+.li {
+  list-style-type: decimal;
+}
+
+#roomAlready {
+  max-height: 300px;
+  overflow-y: auto;
+  /* position: fixed; */
+  width: 100%;
+}

@@ -66,8 +66,11 @@ let loadFriendList = (req, res) => {
 
 let getMSGChatRoom = (req, res) => {
   let username = req.user.username;
+  let nameRoom = req.body.nameRoom;
+  console.log("zzzzzzzzzzzzzz");
+  console.log(nameRoom);
   chatRoomModel
-    .find({})
+    .find({ nameRoom: nameRoom })
     .sort({ createdAt: -1 })
     .then((data) => {
       let msg = [];
