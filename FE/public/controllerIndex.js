@@ -63,12 +63,28 @@ $(document).ready(() => {
       /////load all user
       socket.emit("loadAllUser", {});
       socket.on("serverSendAllUser", (listAllUser) => {
-        // console.log(listAllUser);// tra ve username va userID
-        let listAllUsers = listAllUser.username;
+        console.log(listAllUser); // tra ve username va userID
+        let arrayUsername = listAllUser.username;
+        let arrayID = listAllUser.id;
+        let length = arrayUsername.length;
         $("#allUserList").empty();
-        for (const username of listAllUsers) {
-          $("#allUserList").append(`<li>${username}</li>`);
+        for (let i = 0; i < length; i++) {
+          let user = arrayUsername[i];
+          let listItem = $(`<li>${user}</li><br>`);
+          listItem.click(() => {
+            socket.emit("sendAddFriend", { user });
+            socket.on("addSuccess", () => {
+              alert(`invited add friend to ${user} `);
+            });
+          });
+          $("#allUserList").append(listItem);
         }
+
+        ///// test doan tren
+        // for (const username of arrayUsername) {
+        //   $("#allUserList").append(`<li>${username}</li>`);
+        // }
+        /////
       });
 
       /////notification user online
@@ -84,7 +100,6 @@ $(document).ready(() => {
         for (let i = 0; i < length; i++) {
           let userOnl = listUserOnline.usernameOnl[i];
           let id = listUserOnline.userID[i];
-
           // Tạo thẻ li với sự kiện click được gắn liền
           let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li><br>`);
           // Gắn sự kiện click cho thẻ li
@@ -117,10 +132,12 @@ $(document).ready(() => {
       socket.on("serverSendMSGRoom", (msg) => {
         var noiDung = document.getElementById("noiDung");
         let numbMSG = msg.msg.length;
-        console.log(msg);
-        document.getElementById("noiDung").value = "";
-        for (let i = numbMSG; i >= 0; i--) {
-          $("#noiDung").append(msg.username + ": " + msg.msg[i] + "<br>");
+
+        // document.getElementById("noiDung").value = "";
+        document.getElementById("noiDung").innerText = "";
+
+        for (let i = numbMSG - 1; i >= 0; i--) {
+          $("#noiDung").append(msg.username[i] + ": " + msg.msg[i] + "<br>");
           noiDung.scrollTop = noiDung.scrollHeight;
         }
       });
@@ -129,7 +146,6 @@ $(document).ready(() => {
       ///Tao room
       $("#createRoomButton").click(() => {
         let roomName = $("#roomName").val();
-        console.log(roomName);
         socket.emit("createRoom", roomName);
         document.getElementById("roomName").value = "";
       });
@@ -169,6 +185,7 @@ $(document).ready(() => {
                 let msg = data.data.chat;
                 let username = data.data.username;
                 let index = data.data.username.length;
+                $("#noiDung").empty();
                 // console.log("index: " + index);
                 for (let i = index - 1; i >= 0; i--) {
                   $("#noiDung").append(username[i] + ": " + msg[i] + "<br>");

@@ -7,6 +7,8 @@ let server = require("http").Server(app);
 let port = process.env.PORT;
 let chatRoomModel = require("./database/chatRoom");
 let userOnlOffModel = require("./database/userOnlOff");
+let nameChatModel = require("./database/nameChat");
+let notificationModel = require("./database/notification");
 let { CHECK_ONL } = require("./const");
 let { NOW } = require("./const");
 // let socketConfig = require("./socket.io/socket");
@@ -74,19 +76,20 @@ io.on("connection", (socket) => {
   /////Tao Room
   socket.on("createRoom", (roomName) => {
     let username = socket.username;
-    chatRoomModel
+    nameChatModel
       .findOne({ roomName: roomName })
       .then((data) => {
         if (!data) {
           console.log("room chua ton tai.tao room moi");
-          chatRoomModel.create({ roomName: roomName }).then((data) => {
-            chatRoomModel.find().then((data) => {
+          nameChatModel.create({ roomName: roomName }).then((data) => {
+            nameChatModel.find().then((data) => {
               socket.join(roomName);
               let roomList = [];
               for (let i = 0; i < data.length; i++) {
                 let roomTemp = data[i].roomName;
                 roomList.push(roomTemp);
               }
+              console.log(roomList);
               io.sockets.emit("serverSendRoomList", { roomList });
             });
           });
@@ -96,7 +99,7 @@ io.on("connection", (socket) => {
           // let arraySocketRoom = socket.adapter.rooms;
           // console.log(socket.adapter.rooms);
           let roomList = [];
-          chatRoomModel
+          nameChatModel
             .find()
             .then((data) => {
               for (let i = 0; i < data.length; i++) {
@@ -127,9 +130,9 @@ io.on("connection", (socket) => {
     console.log("pass join room");
   });
   ///////Tra ve room dang hoat dong
-  socket.on("loadRoomList", async () => {
+  socket.on("loadRoomList", () => {
     // console.log(socket.adapter.rooms);
-    await chatRoomModel
+    nameChatModel
       .find()
       .then((data) => {
         let roomList = [];
@@ -143,11 +146,40 @@ io.on("connection", (socket) => {
         response.responseError(res, err, 500);
       });
   });
+  ///// thong bao // notification
+  socket.on("sendAddFriend", (data) => {
+    let username = socket.username;
+    let userNeedAdd = data.user;
+    console.log("nnqwejnjkqnwekjnqwe");
+    console.log(username);
+    console.log(userNeedAdd);
+    notificationModel
+      .find({ username: userNeedAdd, whoAddMe: username })
+      .then((data) => {
+        console.log("data::::" + data.length);
+        if (data.length != 0) {
+          let msg = "Already send invite friend before";
+          socket.emit("error", msg);
+        } else {
+          notificationModel
+            .create({ username: userNeedAdd, whoAddMe: username })
+            .then((data) => {
+              socket.emit("addSuccess");
+              // socket.emit("notificationSuccess",{});
+            });
+        }
+      })
+      .catch((err) => response.responseError(res, err, 500));
+  });
+  /////sendMSG
   socket.on("sendMSGRoom", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
     let roomName = socket.roomName;
     let username = socket.username;
+    console.log("///////////");
+    console.log(username);
     console.log(roomName);
+    console.log("///////////");
     if (
       typeof roomName != "string" ||
       typeof roomName === "undefined" ||
@@ -171,15 +203,22 @@ io.on("connection", (socket) => {
                 .find({ roomName: roomName })
                 .sort({ createdAt: -1 })
                 .then((data) => {
+                  // console.log(data);
                   let historyChatTemp = [];
+                  let usernameTemp = [];
                   for (let i = 0; i < data.length; i++) {
                     let chat = data[i].historyChat;
+                    let username = data[i].username;
                     historyChatTemp.push(chat);
+                    usernameTemp.push(username);
                   }
+
+                  console.log("thjqnbwndbqbwe");
                   console.log(historyChatTemp);
+                  console.log("pass sv send msg");
                   io.sockets.in(roomName).emit("serverSendMSGRoom", {
                     msg: historyChatTemp,
-                    username: username,
+                    username: usernameTemp,
                   });
                 })
                 .catch((err) => {
@@ -193,33 +232,6 @@ io.on("connection", (socket) => {
           response.responseError(res, err, 500);
         });
     }
-
-    // chatRoomModel
-    //   .create({
-    //     historyChat: msg.msg,
-    //     username: msg.username,
-    //   })
-    //   .then((data) => {
-    //     ///
-    //     chatRoomModel
-    //       .find({})
-    //       .sort({ createdAt: -1 })
-    //       .then((data) => {
-    //         let historyChatTemp = [];
-    //         for (let i = 0; i < data.length; i++) {
-    //           let chat = data[i].historyChat;
-    //           historyChatTemp.push(chat);
-    //         }
-    //         console.log(historyChatTemp);
-    //         io.sockets.emit("serverSendMSGRoom", msg);
-    //       })
-    //       .catch((err) => {
-    //         console.log(err);
-    //       });
-    //     ///
-    //     // io.sockets.emit("serverSendMSGRoom", msg);
-    //   })
-    //   .catch((err) => {});
   });
   ///// send img
   socket.on("sendIMG", (img) => {});

@@ -50,3 +50,6 @@ ul {
   /* position: fixed; */
   width: 100%;
 }
+#boxNoiDung {
+  border: 1px black;
+}

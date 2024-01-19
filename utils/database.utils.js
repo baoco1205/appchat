@@ -4,6 +4,8 @@ let chatRoomModel = require("../database/chatRoom");
 let chatPrivateModel = require("../database/chatPrivate");
 let onlOffModel = require("../database/userOnlOff");
 let friendModel = require("../database/friendList");
+let nameChatModel = require("../database/nameChat");
+let notificationModel = require("../database/notification");
 class databaseUtils {
   constructor() {}
 
