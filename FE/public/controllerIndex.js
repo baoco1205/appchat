@@ -71,25 +71,26 @@ $(document).ready(() => {
         for (let i = 0; i < length; i++) {
           let user = arrayUsername[i];
           let id = arrayID[i];
-          let listItem = $(`<li id="${id}">${user}</li><br>`);
+          let listItem = $(`<li id="${id}">${user}</li>`);
           listItem.click(() => {
             handleUserSelectionToAdd(user);
           });
           $("#allUserList").append(listItem);
         }
+        socket.on("addSuccess", (data) => {
+          console.log("asdqjhwbeijqwhnjkeqwe");
+          console.log(data);
+          alert(`Invite friend to ${data.whoAddMe} success`);
+        });
 
         ///// test doan tren
         // Sự kiện lắng nghe chung cho việc thêm bạn bè
 
         // Hàm xử lý khi người dùng được chọn
         function handleUserSelectionToAdd(user) {
-          console.log(user);
-          // Gửi yêu cầu thêm bạn bè với thông tin người dùng được chọn
           socket.emit("sendAddFriend", { user });
-          socket.on("addSuccess", () => {
-            alert(`Invited to add friend to ${user}`);
-          });
         }
+
         /////
       });
 
