@@ -70,47 +70,61 @@ $(document).ready(() => {
         $("#allUserList").empty();
         for (let i = 0; i < length; i++) {
           let user = arrayUsername[i];
-          let listItem = $(`<li>${user}</li><br>`);
+          let id = arrayID[i];
+          let listItem = $(`<li id="${id}">${user}</li><br>`);
           listItem.click(() => {
-            socket.emit("sendAddFriend", { user });
-            socket.on("addSuccess", () => {
-              alert(`invited add friend to ${user} `);
-            });
+            handleUserSelectionToAdd(user);
           });
           $("#allUserList").append(listItem);
         }
 
         ///// test doan tren
-        // for (const username of arrayUsername) {
-        //   $("#allUserList").append(`<li>${username}</li>`);
-        // }
+        // Sự kiện lắng nghe chung cho việc thêm bạn bè
+
+        // Hàm xử lý khi người dùng được chọn
+        function handleUserSelectionToAdd(user) {
+          console.log(user);
+          // Gửi yêu cầu thêm bạn bè với thông tin người dùng được chọn
+          socket.emit("sendAddFriend", { user });
+          socket.on("addSuccess", () => {
+            alert(`Invited to add friend to ${user}`);
+          });
+        }
         /////
       });
 
       /////notification user online
       socket.emit("notificationOnl", { username, token });
-      socket.on("serverNotificationOnl", (listUserOnline) => {
-        // console.log(listUserOnline);
-        // console.log(listUserOnline.usernameOnl);
-        // console.log(listUserOnline.userID);
+      socket.on("serverNotificationOnl", (listFriendOnline) => {
+        // console.log(listFriendOnline);
+        // console.log(listFriendOnline.usernameOnl);
+        // console.log(listFriendOnline.userID);
 
-        let length = listUserOnline.usernameOnl.length;
+        let length = listFriendOnline.usernameOnl.length;
         console.log(length);
         $("#userList").empty();
         for (let i = 0; i < length; i++) {
-          let userOnl = listUserOnline.usernameOnl[i];
-          let id = listUserOnline.userID[i];
+          let userOnl = listFriendOnline.usernameOnl[i];
+          let id = listFriendOnline.userID[i];
           // Tạo thẻ li với sự kiện click được gắn liền
           let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li><br>`);
           // Gắn sự kiện click cho thẻ li
           listItem.click(() => {
-            alert(`invited add friend to ${userOnl} `);
+            handleUserSelectionToDelete(userOnl);
           });
           // Thêm thẻ li vào #userList
           $("#userList").append(listItem);
         }
       });
-
+      ///xử lý lúc delete user: // chua lam xong =)), sau dua phan nay
+      // xuong list friend,k phai firend online
+      function handleUserSelectionToDelete(userOnl) {
+        let result = confirm(`You want unfriend with ${userOnl}`);
+        if (result) {
+          alert("delete success");
+        } else {
+        }
+      }
       /////notification user offline
       ///logout
       $("#logout").click(() => {

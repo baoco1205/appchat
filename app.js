@@ -164,7 +164,8 @@ io.on("connection", (socket) => {
           notificationModel
             .create({ username: userNeedAdd, whoAddMe: username })
             .then((data) => {
-              socket.emit("addSuccess");
+              let userNeedAdd = data.userNeedAdd;
+              socket.emit("addSuccess", { whoAddMe: userNeedAdd });
               // socket.emit("notificationSuccess",{});
             });
         }
