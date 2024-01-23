@@ -56,10 +56,55 @@ $(document).ready(() => {
       return data.json();
     })
     .then((user) => {
-      let username = user.data;
+      // console.log(user);
+      let username = user.data.username;
+      $("#username").append(username);
+      let userID = user.data.id;
+      ///// HIEN THONG BAO LUC DANG NHAP
+      socket.emit("loadNotification", { username });
+      socket.on("serverResponseNotification", (data) => {
+        let notificationInfor = data.data;
+        if (notificationInfor.length == 0) {
+          console.log("sad boy ra doi, khong ai add het. leu leu ");
+        } else {
+          console.log(notificationInfor);
+          $("#notification").empty();
+          for (let i = 0; i < notificationInfor.length; i++) {
+            let userAddMe = notificationInfor[i].whoAddMe;
+            let userAcceptMe = notificationInfor[i].whoAcceptMe;
+            // console.log("///////////////");
+            // console.log(userAcceptMe);
+            let listNotification = $(
+              `<div>User have name ${userAddMe} want add friend with you</div>`
+            );
+            listNotification.click(() => {
+              handleNotification(userAddMe);
+            });
 
+            $("#notification").append(listNotification);
+          }
+          // socket.on;
+        }
+      });
+      function handleNotification(userAddMe) {
+        if (userAddMe == username) {
+          let msg = "You can't add yourself";
+          socket.emit("error", msg);
+        } else {
+          let result = confirm(`You want accept friend with ${userAddMe}`);
+          if (result) {
+            socket.emit("handleAddFriend", {
+              userAddMe: userAddMe,
+            });
+            alert(`Now you and ${userAddMe} is a friend`);
+            location.href = "http://127.0.0.1:5501/views/indextemp.html";
+          } else {
+            console.log("Do not thing");
+          }
+        }
+      }
       //gui username
-      socket.emit("clientSendUsername", username);
+      socket.emit("clientSendInfor", { username: username, userID: userID });
       /////load all user
       socket.emit("loadAllUser", {});
       socket.on("serverSendAllUser", (listAllUser) => {
@@ -70,36 +115,43 @@ $(document).ready(() => {
         $("#allUserList").empty();
         for (let i = 0; i < length; i++) {
           let user = arrayUsername[i];
-          let id = arrayID[i];
-          let listItem = $(`<li id="${id}">${user}</li>`);
+          let userNeedAddID = arrayID[i];
+          let listItem = $(`<li id="${userNeedAddID}">${user}</li>`);
           listItem.click(() => {
-            handleUserSelectionToAdd(user);
-            //đầu để socket on và emit trong for. lỗi lặp lại lúc
-            // click vào link
+            if (user == username) {
+              let msg = "Your can't add yourself";
+              alert(msg);
+            } else {
+              socket.emit("checkFriendAlready", {
+                userNeedAddID: userNeedAddID,
+                usernameNeedAdd: user,
+              });
+              socket.on("serverResponseFriendAlready", (data) => {
+                console.log(data);
+                if (data) {
+                  socket.emit("sendAddFriend", {
+                    username: user,
+                    userNeedAdd: userNeedAddID,
+                  });
+                } else {
+                  let msg = `You and ${user} already friend before`;
+                  socket.emit("error", msg);
+                }
+              });
+            }
           });
           $("#allUserList").append(listItem);
         }
         socket.on("addSuccess", (data) => {
-          console.log("asdqjhwbeijqwhnjkeqwe");
-          console.log(data);
-          alert(`Invite friend to ${data.whoAddMe} success`);
+          //username là người cần add.
+          alert(`Invite friend to ${data.username} success`);
         });
-
-        ///// test doan tren
-        // Sự kiện lắng nghe chung cho việc thêm bạn bè
-
-        // Hàm xử lý khi người dùng được chọn
-        function handleUserSelectionToAdd(user) {
-          socket.emit("sendAddFriend", { user });
-        }
-
-        /////
       });
 
       /////notification user online
       socket.emit("notificationOnl", { username, token });
       socket.on("serverNotificationOnl", (listFriendOnline) => {
-        // console.log(listFriendOnline);
+        console.log(listFriendOnline);
         // console.log(listFriendOnline.usernameOnl);
         // console.log(listFriendOnline.userID);
 
@@ -110,7 +162,7 @@ $(document).ready(() => {
           let userOnl = listFriendOnline.usernameOnl[i];
           let id = listFriendOnline.userID[i];
           // Tạo thẻ li với sự kiện click được gắn liền
-          let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li><br>`);
+          let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li></br>`);
           // Gắn sự kiện click cho thẻ li
           listItem.click(() => {
             handleUserSelectionToDelete(userOnl);
@@ -119,8 +171,7 @@ $(document).ready(() => {
           $("#userList").append(listItem);
         }
       });
-      ///xử lý lúc delete user: // chua lam xong =)), sau dua phan nay
-      // xuong list friend,k phai firend online
+      ///xử lý lúc delete user: // chua lam xong =))
       function handleUserSelectionToDelete(userOnl) {
         let result = confirm(`You want unfriend with ${userOnl}`);
         if (result) {

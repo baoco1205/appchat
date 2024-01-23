@@ -9,6 +9,7 @@ let chatRoomModel = require("./database/chatRoom");
 let userOnlOffModel = require("./database/userOnlOff");
 let nameChatModel = require("./database/nameChat");
 let notificationModel = require("./database/notification");
+let friendModel = require("./database/friend");
 let { CHECK_ONL } = require("./const");
 let { NOW } = require("./const");
 // let socketConfig = require("./socket.io/socket");
@@ -55,7 +56,7 @@ const userModel = require("./database/user");
 // const { userInfo } = require("os");
 // /server connect database
 DatabaseUtil.connect(function (err) {
-  if (err) response.responseErr(res, err, 500);
+  if (err) response.responseError(res, err, 500);
 });
 ////
 //router
@@ -65,9 +66,9 @@ app.use("", router);
 //server xu ly chat
 io.on("connection", (socket) => {
   ///get username
-  socket.on("clientSendUsername", (username) => {
-    socket.username = username;
-
+  socket.on("clientSendInfor", (data) => {
+    socket.username = data.username;
+    socket.userID = data.userID;
     console.log("user: " + socket.username + " vua dang nhap");
   });
 
@@ -147,9 +148,55 @@ io.on("connection", (socket) => {
       });
   });
   ///// thong bao // notification
-  socket.on("sendAddFriend", (data) => {
+  socket.on("loadNotification", (data) => {
+    let username = data.username;
+    notificationModel
+      .find({ username: username })
+      .then((data) => {
+        socket.emit("serverResponseNotification", { data });
+        // console.log("load notification success");
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
+  });
+  ///handle add friend
+  socket.on("handleAddFriend", (data) => {
+    // console.log(data);
     let username = socket.username;
-    let userNeedAdd = data.user;
+    let userID = socket.userID;
+    let userNeedAdd = data.userAddMe;
+    userModel
+      .findOne({ username: userNeedAdd })
+      .then((data) => {
+        let userAcceptID = data._id;
+        friendModel
+          .create({ userID1: userAcceptID, userID2: userID })
+          .then((data) => {
+            // console.log(data);
+            notificationModel
+              .deleteOne({
+                whoAddMe: userNeedAdd,
+                whoAcceptMe: username,
+              })
+              .then((data) => {
+                notificationModel.find({ username: username }).then((data) => {
+                  socket.emit("serverResponseNotification", { data });
+                });
+              });
+          });
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
+    // friendModel.create({userID1}).then().catch();
+  });
+  ///send add friend
+  socket.on("sendAddFriend", (data) => {
+    console.log("tqwedqbwijbekmnqww");
+    console.log(data);
+    let username = socket.username;
+    let userNeedAdd = data.username;
     console.log("nnqwejnjkqnwekjnqwe");
     console.log(username);
     console.log(userNeedAdd);
@@ -162,17 +209,57 @@ io.on("connection", (socket) => {
           socket.emit("error", msg);
         } else {
           notificationModel
-            .create({ username: userNeedAdd, whoAddMe: username })
+            .create({
+              username: userNeedAdd,
+              whoAddMe: username,
+              whoAcceptMe: userNeedAdd,
+            })
             .then((data) => {
-              console.log("dataaaaaa:::::");
-              console.log(data);
-              let userNeedAdd = data.whoAddMe;
-              socket.emit("addSuccess", { whoAddMe: userNeedAdd });
+              let username = data.username;
+              socket.emit("addSuccess", { username: username });
               // socket.emit("notificationSuccess",{});
             });
         }
       })
       .catch((err) => response.responseError(res, err, 500));
+  });
+  /////check friend already // check xem da la ban be chua
+  socket.on("checkFriendAlready", (data) => {
+    let username = socket.username;
+    let userID = socket.userID;
+    let userNeedAddID = data.userNeedAddID;
+    let usernameNeedAdd = data.usernameNeedAdd;
+    friendModel
+      .find({
+        $or: [
+          { userID1: userID, userID2: userNeedAddID },
+          { userID1: userNeedAddID, userID2: userID },
+        ],
+      })
+      .then((data) => {
+        console.log("q1wedcqwyqasd");
+        console.log(data);
+        if (data.length == 0) {
+          notificationModel
+            .find({ username: userNeedAddID, whoAddMe: username })
+            .then((data) => {
+              console.log("/////////////");
+              console.log(data);
+              if (data.length == 0) {
+                socket.emit("serverResponseFriendAlready", true);
+              } else {
+                let msg = "Already send invite friend before";
+                socket.emit("error", msg);
+              }
+            })
+            .catch((err) => {});
+        } else {
+          socket.emit("serverResponseFriendAlready", false);
+        }
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
   });
   /////sendMSG
   socket.on("sendMSGRoom", (msg) => {
@@ -273,10 +360,8 @@ io.on("connection", (socket) => {
               status: CHECK_ONL.ONL,
             })
             .then((data1) => {
-              let username = data1.username;
               userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
                 //lay danh sach nhung nguoi dang online bang status
-
                 let usernameOnl = [];
                 for (let i = 0; i < data.length; i++) {
                   let usernameTemp = data[i].username;

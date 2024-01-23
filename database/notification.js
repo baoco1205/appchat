@@ -7,6 +7,7 @@ const { NOW } = require("../const");
 const notificationSchema = new Schema(
   {
     whoAddMe: { type: String, min: 1 },
+    whoAcceptMe: { type: String, min: 1 },
     msg: { type: String, min: 1 },
     someOneAcept: { type: String, min: 1 },
     username: { type: String, min: 1 },

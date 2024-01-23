@@ -40,7 +40,8 @@ let createUser = (req, res) => {
 };
 let getUsername = (req, res) => {
   let username = req.user.username;
-  response.response(res, username);
+  let id = req.user._id;
+  response.response(res, { username: username, id: id });
 };
 let getIDUser = (req, res) => {
   console.log(req.user);
