@@ -74,6 +74,8 @@ $(document).ready(() => {
           let listItem = $(`<li id="${id}">${user}</li><br>`);
           listItem.click(() => {
             handleUserSelectionToAdd(user);
+            //đầu để socket on và emit trong for. lỗi lặp lại lúc
+            // click vào link
           });
           $("#allUserList").append(listItem);
         }
