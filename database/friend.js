@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 
 const friendSchema = new Schema(
   {
-    userID1: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-    userID2: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    userID1: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    userID2: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { collection: "friend", timestamps: true }
 );

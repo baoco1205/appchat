@@ -160,6 +160,7 @@ io.on("connection", (socket) => {
         response.responseError(res, err, 500);
       });
   });
+
   ///handle add friend
   socket.on("handleAddFriend", (data) => {
     // console.log(data);
@@ -228,7 +229,8 @@ io.on("connection", (socket) => {
     let username = socket.username;
     let userID = socket.userID;
     let userNeedAddID = data.userNeedAddID;
-    let usernameNeedAdd = data.usernameNeedAdd;
+    let indexUser = data.indexUser;
+
     friendModel
       .find({
         $or: [
@@ -246,7 +248,10 @@ io.on("connection", (socket) => {
               console.log("/////////////");
               console.log(data);
               if (data.length == 0) {
-                socket.emit("serverResponseFriendAlready", true);
+                socket.emit("serverResponseFriendAlready", {
+                  check: true,
+                  indexUser: indexUser,
+                });
               } else {
                 let msg = "Already send invite friend before";
                 socket.emit("error", msg);
@@ -325,6 +330,36 @@ io.on("connection", (socket) => {
   });
   ///// send img
   socket.on("sendIMG", (img) => {});
+  /////tra lai list all friend
+  socket.on("loadFriend", () => {
+    let userID = socket.userID;
+    console.log(userID);
+    friendModel
+      .find({ $or: [{ userID1: userID }, { userID2: userID }] })
+      .populate([{ path: "userID1" }, { path: "userID2" }])
+      .then((userInfor) => {
+        let listFriend = [];
+        // console.log(userInfor);
+        for (let i = 0; i < userInfor.length; i++) {
+          let userID1 = userInfor[i].userID1._id;
+          let userID2 = userInfor[i].userID2._id;
+          let usernameID1 = userInfor[i].userID1.username;
+          let usernameID2 = userInfor[i].userID2.username;
+          if (userID != userID1) {
+            console.log(usernameID1);
+            listFriend.push(usernameID1);
+            console.log(listFriend);
+          } else if (userID != userID2) {
+            listFriend.push(usernameID2);
+            console.log(usernameID2);
+          }
+        }
+        socket.emit("serverResponseListFriend", { listFriend: listFriend });
+      })
+      .catch((err) => {
+        response.responseError(res, err, 500);
+      });
+  });
   ///// tra lai list tat ca nguoi dung da dang ki
   socket.on("loadAllUser", () => {
     userModel

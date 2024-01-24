@@ -25,9 +25,14 @@
 ul {
   list-style-type: decimal;
 }
+#titleUser {
+  display: flex;
+  justify-content: center;
+}
 #listUser .user {
   border: 1px solid #000;
   padding: 10px;
+  width: 7em;
   margin-bottom: 10px;
 }
 #listRoom {

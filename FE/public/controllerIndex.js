@@ -5,6 +5,7 @@ $(document).ready(() => {
   /////chay khi star//////
   socket.emit("loadRoomList", {});
   socket.on("error", (error) => {
+    console.log(error);
     alert(error);
   });
   /////
@@ -113,9 +114,15 @@ $(document).ready(() => {
         let arrayID = listAllUser.id;
         let length = arrayUsername.length;
         $("#allUserList").empty();
+        ////socket.on khong duoc de trong for.
+        //se lam ham on goi nhieu lan sinh ra loi
+        let userTemp = [];
+        let idTemp = [];
         for (let i = 0; i < length; i++) {
           let user = arrayUsername[i];
           let userNeedAddID = arrayID[i];
+          userTemp.push(user);
+          idTemp.push(userNeedAddID);
           let listItem = $(`<li id="${userNeedAddID}">${user}</li>`);
           listItem.click(() => {
             if (user == username) {
@@ -125,27 +132,62 @@ $(document).ready(() => {
               socket.emit("checkFriendAlready", {
                 userNeedAddID: userNeedAddID,
                 usernameNeedAdd: user,
-              });
-              socket.on("serverResponseFriendAlready", (data) => {
-                console.log(data);
-                if (data) {
-                  socket.emit("sendAddFriend", {
-                    username: user,
-                    userNeedAdd: userNeedAddID,
-                  });
-                } else {
-                  let msg = `You and ${user} already friend before`;
-                  socket.emit("error", msg);
-                }
+                indexUser: i,
               });
             }
           });
           $("#allUserList").append(listItem);
         }
+        socket.on("serverResponseFriendAlready", (data) => {
+          let indexUser = data.indexUser; // tra ve vi tri cua mang
+          let checkFriend = data.check; // tra ve true false
+          let user = userTemp[indexUser];
+          let userNeedAddID = idTemp[indexUser];
+          console.log(data);
+          if (checkFriend) {
+            console.log(user);
+            console.log(userNeedAddID);
+            socket.emit("sendAddFriend", {
+              username: user,
+              userNeedAdd: userNeedAddID,
+            });
+          } else {
+            let msg = "You and " + user + " already friend before";
+            console.log(msg);
+            socket.emit("error", msg);
+          }
+        });
         socket.on("addSuccess", (data) => {
           //username là người cần add.
           alert(`Invite friend to ${data.username} success`);
         });
+      });
+      ////load all friend
+      socket.emit("loadFriend");
+      socket.on("serverResponseListFriend", (listFriend) => {
+        let arrayFriend = listFriend.listFriend;
+        let length = arrayFriend.length;
+
+        $("#friendList").empty();
+        for (let i = 0; i < length; i++) {
+          let friend = arrayFriend[i];
+
+          // Tạo thẻ li với sự kiện click được gắn liền
+          let listFriend = $(`<li">${i + 1 + ". "}${friend}</li></br>`);
+          // Gắn sự kiện click cho thẻ li
+          listFriend.click(() => {
+            handleUserSelectionToDelete(friend);
+          });
+          // Thêm thẻ li vào #userList
+          $("#friendList").append(listFriend);
+        }
+        function handleUserSelectionToDelete(friend) {
+          let result = confirm(`You want unfriend with ${friend}`);
+          if (result) {
+            alert("delete success");
+          } else {
+          }
+        }
       });
 
       /////notification user online
@@ -165,20 +207,13 @@ $(document).ready(() => {
           let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li></br>`);
           // Gắn sự kiện click cho thẻ li
           listItem.click(() => {
-            handleUserSelectionToDelete(userOnl);
+            console.log("Do not thing ");
           });
           // Thêm thẻ li vào #userList
           $("#userList").append(listItem);
         }
       });
-      ///xử lý lúc delete user: // chua lam xong =))
-      function handleUserSelectionToDelete(userOnl) {
-        let result = confirm(`You want unfriend with ${userOnl}`);
-        if (result) {
-          alert("delete success");
-        } else {
-        }
-      }
+
       /////notification user offline
       ///logout
       $("#logout").click(() => {
