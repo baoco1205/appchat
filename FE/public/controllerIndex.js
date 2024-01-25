@@ -149,13 +149,19 @@ $(document).ready(() => {
             console.log(userNeedAddID);
             socket.emit("sendAddFriend", {
               username: user,
-              userNeedAdd: userNeedAddID,
+              userNeedAddID: userNeedAddID,
             });
           } else {
             let msg = "You and " + user + " already friend before";
             console.log(msg);
             socket.emit("error", msg);
           }
+        });
+        socket.on("loadAtUserOnline", (data) => {
+          let userNeedAdd = data.userNeedAdd;
+          console.log(userNeedAdd);
+
+          socket.emit("loadNotification", { userNeedAdd });
         });
         socket.on("addSuccess", (data) => {
           //username là người cần add.
@@ -164,30 +170,34 @@ $(document).ready(() => {
       });
       ////load all friend
       socket.emit("loadFriend");
+
       socket.on("serverResponseListFriend", (listFriend) => {
         let arrayFriend = listFriend.listFriend;
+        let arrayFriendID = listFriend.listUserID;
         let length = arrayFriend.length;
 
         $("#friendList").empty();
         for (let i = 0; i < length; i++) {
           let friend = arrayFriend[i];
-
-          // Tạo thẻ li với sự kiện click được gắn liền
+          let friendID = arrayFriendID[i];
           let listFriend = $(`<li">${i + 1 + ". "}${friend}</li></br>`);
-          // Gắn sự kiện click cho thẻ li
           listFriend.click(() => {
-            handleUserSelectionToDelete(friend);
+            handleUserSelectionToDelete(friend, friendID);
           });
-          // Thêm thẻ li vào #userList
           $("#friendList").append(listFriend);
         }
-        function handleUserSelectionToDelete(friend) {
+        function handleUserSelectionToDelete(friend, friendID) {
           let result = confirm(`You want unfriend with ${friend}`);
           if (result) {
+            socket.emit("unfriend", { friendID: friendID, friend: friend });
             alert("delete success");
           } else {
           }
         }
+      });
+
+      socket.on("serverConfirmUnfriend", () => {
+        location.href = "http://127.0.0.1:5501/views/indextemp.html";
       });
 
       /////notification user online

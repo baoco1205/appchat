@@ -69,6 +69,8 @@ io.on("connection", (socket) => {
   socket.on("clientSendInfor", (data) => {
     socket.username = data.username;
     socket.userID = data.userID;
+    socket.id = data.userID;
+    socket.join(socket.id);
     console.log("user: " + socket.username + " vua dang nhap");
   });
 
@@ -188,7 +190,9 @@ io.on("connection", (socket) => {
           });
       })
       .catch((err) => {
-        response.responseError(res, err, 500);
+        let error = new Error(err);
+        error.statusCode = 500;
+        throw error;
       });
     // friendModel.create({userID1}).then().catch();
   });
@@ -198,6 +202,7 @@ io.on("connection", (socket) => {
     console.log(data);
     let username = socket.username;
     let userNeedAdd = data.username;
+    let userNeedAddID = data.userNeedAddID;
     console.log("nnqwejnjkqnwekjnqwe");
     console.log(username);
     console.log(userNeedAdd);
@@ -218,6 +223,21 @@ io.on("connection", (socket) => {
             .then((data) => {
               let username = data.username;
               socket.emit("addSuccess", { username: username });
+              console.log("//////////////////////");
+              const allRooms = io.sockets.adapter.rooms;
+              console.log(allRooms);
+              for (const room in allRooms) {
+                const socketsInRoom = io.sockets.adapter.rooms[room].sockets;
+                console.log(socketsInRoom);
+                // Duyệt qua danh sách các socket trong phòng
+                for (const socketId in socketsInRoom) {
+                  console.log("  Socket ID:", socketId);
+                }
+              }
+              console.log("//////////////////////");
+              // socket
+              //   .to(userNeedAddID)
+              //   .emit("loadAtUserOnline", { userNeedAdd: userNeedAdd });
               // socket.emit("notificationSuccess",{});
             });
         }
@@ -286,7 +306,6 @@ io.on("connection", (socket) => {
       chatRoomModel
         .find({ roomName: roomName })
         .then((data) => {
-          // console.log(data);
           chatRoomModel
             .create({
               roomName: roomName,
@@ -298,7 +317,6 @@ io.on("connection", (socket) => {
                 .find({ roomName: roomName })
                 .sort({ createdAt: -1 })
                 .then((data) => {
-                  // console.log(data);
                   let historyChatTemp = [];
                   let usernameTemp = [];
                   for (let i = 0; i < data.length; i++) {
@@ -308,9 +326,6 @@ io.on("connection", (socket) => {
                     usernameTemp.push(username);
                   }
 
-                  console.log("thjqnbwndbqbwe");
-                  console.log(historyChatTemp);
-                  console.log("pass sv send msg");
                   io.sockets.in(roomName).emit("serverSendMSGRoom", {
                     msg: historyChatTemp,
                     username: usernameTemp,
@@ -333,32 +348,58 @@ io.on("connection", (socket) => {
   /////tra lai list all friend
   socket.on("loadFriend", () => {
     let userID = socket.userID;
-    console.log(userID);
+
     friendModel
       .find({ $or: [{ userID1: userID }, { userID2: userID }] })
       .populate([{ path: "userID1" }, { path: "userID2" }])
       .then((userInfor) => {
         let listFriend = [];
-        // console.log(userInfor);
+        let listUserID = [];
+
         for (let i = 0; i < userInfor.length; i++) {
           let userID1 = userInfor[i].userID1._id;
           let userID2 = userInfor[i].userID2._id;
           let usernameID1 = userInfor[i].userID1.username;
           let usernameID2 = userInfor[i].userID2.username;
           if (userID != userID1) {
-            console.log(usernameID1);
             listFriend.push(usernameID1);
-            console.log(listFriend);
+            listUserID.push(userID1);
           } else if (userID != userID2) {
             listFriend.push(usernameID2);
-            console.log(usernameID2);
+            listUserID.push(userID2);
           }
         }
-        socket.emit("serverResponseListFriend", { listFriend: listFriend });
+
+        socket.emit("serverResponseListFriend", {
+          listFriend: listFriend,
+          listUserID: listUserID,
+        });
       })
       .catch((err) => {
         response.responseError(res, err, 500);
       });
+  });
+  /////unfriend
+  socket.on("unfriend", (data) => {
+    let friend = data.friend;
+    let friendID = data.friendID;
+    let userID = socket.userID;
+    friendModel
+      .findOneAndDelete({
+        $or: [
+          { $and: [{ userID1: userID }, { userID2: friendID }] },
+          { $and: [{ userID2: userID }, { userID1: friendID }] },
+        ],
+      })
+      .then((data) => {
+        if (data) {
+          socket.emit("serverConfirmUnfriend", {});
+        } else {
+          let msg = "Please refresh your browser";
+          socket.emit("error", msg);
+        }
+      })
+      .catch((err) => {});
   });
   ///// tra lai list tat ca nguoi dung da dang ki
   socket.on("loadAllUser", () => {
