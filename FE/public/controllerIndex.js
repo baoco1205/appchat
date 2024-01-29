@@ -243,9 +243,10 @@ $(document).ready(() => {
       });
       //server send msg
       socket.on("serverSendMSGRoom", (msg) => {
+        console.log("zzzzzzzzzxxxxxxxx");
+        console.log(msg);
         var noiDung = document.getElementById("noiDung");
         let numbMSG = msg.msg.length;
-
         // document.getElementById("noiDung").value = "";
         document.getElementById("noiDung").innerText = "";
 

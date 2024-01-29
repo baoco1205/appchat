@@ -10,8 +10,8 @@ let userOnlOffModel = require("./database/userOnlOff");
 let nameChatModel = require("./database/nameChat");
 let notificationModel = require("./database/notification");
 let friendModel = require("./database/friend");
-let { CHECK_ONL } = require("./const");
-let { NOW } = require("./const");
+let { CHECK_ONL, TYPE } = require("./const");
+
 // let socketConfig = require("./socket.io/socket");
 // app.use(socketConfig);
 var cors = require("cors", {
@@ -289,12 +289,11 @@ io.on("connection", (socket) => {
   /////sendMSG
   socket.on("sendMSGRoom", (msg) => {
     // console.log(msg); // trong msg gồm username và msg
+
+    let chat = msg.msg;
     let roomName = socket.roomName;
     let username = socket.username;
-    console.log("///////////");
-    console.log(username);
-    console.log(roomName);
-    console.log("///////////");
+
     if (
       typeof roomName != "string" ||
       typeof roomName === "undefined" ||
@@ -311,6 +310,7 @@ io.on("connection", (socket) => {
               roomName: roomName,
               username: username,
               historyChat: msg.msg,
+              type: TYPE.MESSAGE,
             })
             .then((data) => {
               chatRoomModel
@@ -326,7 +326,12 @@ io.on("connection", (socket) => {
                     usernameTemp.push(username);
                   }
 
-                  io.sockets.in(roomName).emit("serverSendMSGRoom", {
+                  console.log("////////");
+                  console.log(socket.username);
+                  console.log("////////");
+
+                  // io.sockets.in(roomName).emit("serverSendMSGRoom", {
+                  io.to(roomName).emit("serverSendMSGRoom", {
                     msg: historyChatTemp,
                     username: usernameTemp,
                   });

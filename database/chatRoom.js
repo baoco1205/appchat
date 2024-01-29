@@ -11,6 +11,7 @@ const chatSchema = new Schema(
     listUser: { type: String, min: 1 },
     roomName: { type: String, default: 0, min: 1 },
     codeChatHistory: { type: String, default: 0 },
+    type: { type: String, default: 0 },
     // index: { type: Number },
   },
   { collection: "chatRoom", timestamps: true }

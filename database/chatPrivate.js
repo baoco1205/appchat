@@ -10,6 +10,7 @@ const chatPrivateSchema = new Schema(
     usernameReceiver: { type: String, min: 1, max: 20 },
     usernameSender: { type: String, min: 1, max: 20 },
     codeChatHistory: { type: String, default: 0 },
+    type: { type: Number, default: 0 },
   },
   { collection: "chatPrivate", timestamps: true }
 );
