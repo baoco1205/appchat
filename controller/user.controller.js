@@ -4,7 +4,18 @@ let response = require("../controller/response");
 let bcrypt = require("bcrypt");
 let without = require("../controller/without");
 let chatRoomModel = require("../database/chatRoom");
+let userOnlOffModel = require("../database/userOnlOff");
 const chatPrivateModel = require("../database/chatPrivate");
+let express = require("express");
+let app = express();
+let server = require("http").Server(app);
+let io = require("socket.io")(server, {
+  cors: {
+    origin: "http://127.0.0.1:5501",
+    // origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 let createUser = (req, res) => {
   var { username, password, name, nickname } = req.body;
   console.log(req.body);
@@ -93,11 +104,22 @@ let getMSGChatRoom = (req, res) => {
       response.responseError(res, err, 404);
     });
 };
-let loadFriendOnline = (req, res) => {
-  let userOnl = req.body.listUserOnline.usernameOnl;
+let loadFriendOnline = async (req, res) => {
+  // let userOnl = req.body.listUserOnline.usernameOnl;
+
   let username = req.body.username;
-  let listUserOnline = userOnl.filter((item) => item !== username);
-  // response.response(res, listFriendOnline);
+  // let listUserOnline = userOnl.filter((item) => item !== username);
+  let listFriend = req.body.listFriend.listFriend;
+  let listUserID = req.body.listFriend.listUserID;
+  let listFriendOnline = [];
+  for (let i = 0; i < listFriend.length; i++) {
+    let friendOnline = await userOnlOffModel
+      .findOne({ username: listFriend[i] })
+      .sort({ createdAt: -1 });
+    if (friendOnline.status == 1) listFriendOnline.push(friendOnline);
+  }
+  console.log(listFriendOnline);
+  response.response(res, listFriendOnline);
 };
 let getMSGChatPrivate = (req, res) => {
   let usernameReceiver = req.user.username;

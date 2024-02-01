@@ -8,13 +8,14 @@ const onlOffSchema = new Schema(
   {
     username: { type: String, min: 6, max: 20 },
     token: { type: String },
+    userID: { type: String },
     status: {
       type: Number,
       default: CHECK_ONL.OFF,
       enum: [CHECK_ONL.OFF, CHECK_ONL.ONL],
     },
   },
-  { collection: "userOnlOff" }
+  { collection: "userOnlOff", timestamps: true }
 );
 const onlOffModel = mongoose.model("userOnlOff", onlOffSchema);
 module.exports = onlOffModel;

@@ -190,8 +190,43 @@ $(document).ready(() => {
           if (result) {
             socket.emit("unfriend", { friendID: friendID, friend: friend });
             alert("delete success");
-          } else {
           }
+        }
+        /////notification friend  online
+        fetch("http://localhost:3000/load_friend_online", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: username,
+            listFriend: listFriend,
+          }),
+        })
+          .then((response) => {
+            // console.log(response);
+            return response.json();
+          })
+          .then((data) => {
+            let listFriendOnline = data.data;
+            console.log(listFriendOnline);
+            $("#friendOnl").empty();
+            for (let i = 0; i < listFriendOnline.length; i++) {
+              let friend = listFriendOnline[i].username;
+              // let friendID = arrayFriendID[i];
+              let friendOnline = $(`<li>${friend}</li>`);
+              friendOnline.click(() => {
+                handleUserSelectionToChat(friend);
+              });
+              $("#friendOnl").append(friendOnline);
+            }
+          })
+          .catch((err) =>
+            console.error("There was a problem with the fetch operation:", err)
+          );
+        function handleUserSelectionToChat(friend) {
+          alert("TESSTTST");
         }
       });
 
@@ -200,7 +235,7 @@ $(document).ready(() => {
       });
 
       /////notification user online
-      socket.emit("notificationUserOnl", { username, token });
+      socket.emit("notificationUserOnl", { username, token, userID });
       socket.on("serverNotificationUserOnl", (listUserOnline) => {
         console.log("tesstststst");
         console.log(listUserOnline);
@@ -218,43 +253,8 @@ $(document).ready(() => {
           // Thêm thẻ li vào #userList
           $("#userList").append(listItem);
         }
-
-        /////notification friend  online
-        fetch("http://localhost:3000/load_friend_online", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            username: username,
-            listUserOnline: listUserOnline,
-          }),
-        })
-          .then((response) => {
-            // console.log(response);
-            return response.json();
-          })
-          .then((data) => {
-            let listFriendOnline = data.data;
-            $("#friendOnl").empty();
-            for (let i = 0; i < listFriendOnline.length; i++) {
-              let friend = listFriendOnline[i];
-              // let friendID = arrayFriendID[i];
-              let friendOnline = $(`<li>${friend}</li>`);
-              friendOnline.click(() => {
-                handleUserSelectionToChat(friend);
-              });
-              $("#friendOnl").append(friendOnline);
-            }
-          })
-          .catch((err) =>
-            console.error("There was a problem with the fetch operation:", err)
-          );
       });
-      function handleUserSelectionToChat(friend) {
-        alert("TESSTTST");
-      }
+
       /////load friend online
       socket.emit("notificationFriendOnl", {});
       socket.on("serverNotificationFriendOnl", { token });
@@ -266,7 +266,11 @@ $(document).ready(() => {
         localStorage.removeItem("token");
         location.href = "http://127.0.0.1:5501/views/login.html";
       });
-
+      ///refresh trang
+      window.addEventListener("beforeunload", function (event) {
+        socket.emit("pageRefresh");
+      });
+      // window.location.reload();
       /////hien thi username dang dang nhap
       $("#username").append(user.data);
       // $("#noiDung").append(user.data + " has online");

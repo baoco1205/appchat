@@ -2,8 +2,8 @@
 require("dotenv").config();
 let express = require("express");
 let app = express();
-app.use(express.static("./FE/public"));
 let server = require("http").Server(app);
+app.use(express.static("./FE/public"));
 let port = process.env.PORT;
 let chatRoomModel = require("./database/chatRoom");
 let userOnlOffModel = require("./database/userOnlOff");
@@ -74,7 +74,9 @@ io.on("connection", (socket) => {
     socket.join(socket.id);
     console.log("user: " + socket.username + " vua dang nhap");
   });
-
+  socket.on("pageRefresh", () => {
+    console.log("sau nay xu ly luc f5 o day, cho out phong hien tai");
+  });
   //xu ly gui va nhan tin nhan
   /////Chat Room
   /////Tao Room
@@ -438,6 +440,7 @@ io.on("connection", (socket) => {
   socket.on("notificationUserOnl", (userInfor) => {
     let username = userInfor.username;
     let token = userInfor.token;
+    let userID = userInfor.userID;
 
     //check xem nguoi dung da online chua.
     userOnlOffModel
@@ -450,10 +453,10 @@ io.on("connection", (socket) => {
             .create({
               username: username,
               token: token,
+              userID: userID,
               status: CHECK_ONL.ONL,
             })
             .then((data1) => {
-              console.log("toi day kkhoong");
               userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
                 //lay danh sach nhung nguoi dang online bang status
                 console.log(data);
