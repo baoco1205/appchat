@@ -93,6 +93,12 @@ let getMSGChatRoom = (req, res) => {
       response.responseError(res, err, 404);
     });
 };
+let loadFriendOnline = (req, res) => {
+  let userOnl = req.body.listUserOnline.usernameOnl;
+  let username = req.body.username;
+  let listUserOnline = userOnl.filter((item) => item !== username);
+  // response.response(res, listFriendOnline);
+};
 let getMSGChatPrivate = (req, res) => {
   let usernameReceiver = req.user.username;
   let usernameSender = req.body.usernameSender;
@@ -143,4 +149,5 @@ module.exports = {
   addFriend,
   removeFriend,
   loadFriendList,
+  loadFriendOnline,
 };

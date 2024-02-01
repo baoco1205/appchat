@@ -52,6 +52,7 @@ app.use((err, req, res, next) => {
 ///require const
 let DatabaseUtil = require("./utils/database.utils");
 const userModel = require("./database/user");
+const databaseUtils = require("./utils/database.utils");
 // const checkLogin = require("./controller/check.login");
 // const { userInfo } = require("os");
 // /server connect database
@@ -288,7 +289,7 @@ io.on("connection", (socket) => {
   });
   /////sendMSG
   socket.on("sendMSGRoom", (msg) => {
-    // console.log(msg); // trong msg gồm username và msg
+    console.log(msg); // trong msg gồm username và msg
 
     let chat = msg.msg;
     let roomName = socket.roomName;
@@ -305,49 +306,31 @@ io.on("connection", (socket) => {
       chatRoomModel
         .find({ roomName: roomName })
         .then((data) => {
-          chatRoomModel
-            .create({
-              roomName: roomName,
-              username: username,
-              historyChat: msg.msg,
-              type: TYPE.MESSAGE,
-            })
-            .then((data) => {
-              chatRoomModel
-                .find({ roomName: roomName })
-                .sort({ createdAt: -1 })
-                .then((data) => {
-                  let historyChatTemp = [];
-                  let usernameTemp = [];
-                  for (let i = 0; i < data.length; i++) {
-                    let chat = data[i].historyChat;
-                    let username = data[i].username;
-                    historyChatTemp.push(chat);
-                    usernameTemp.push(username);
-                  }
-
-                  console.log("////////");
-                  console.log(socket.username);
-                  console.log("////////");
-
-                  // io.sockets.in(roomName).emit("serverSendMSGRoom", {
-                  io.to(roomName).emit("serverSendMSGRoom", {
-                    msg: historyChatTemp,
-                    username: usernameTemp,
-                  });
-                })
-                .catch((err) => {
-                  console.log(err);
-                });
-              ///
-              // io.sockets.emit("serverSendMSGRoom", msg);
-            });
+          // socket.join(roomName);
+          handleSendMSGRoom(username, roomName, chat);
         })
         .catch((err) => {
           response.responseError(res, err, 500);
         });
     }
   });
+  function handleSendMSGRoom(username, roomName, chat) {
+    chatRoomModel
+      .create({
+        roomName: roomName,
+        username: username,
+        historyChat: chat,
+        type: TYPE.MESSAGE,
+      })
+      .then((data) => {
+        io.emit("serverSendMSGRoom", data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    // });
+  }
   ///// send img
   socket.on("sendIMG", (img) => {});
   /////tra lai list all friend
@@ -423,10 +406,39 @@ io.on("connection", (socket) => {
       })
       .catch((err) => {});
   });
+
+  ///// thong bao ban be nao dang online
+  socket.on("notificationFriendOnl", () => {
+    let userID = socket.userID;
+    let username = socket.username;
+    friendModel
+      .find({ $or: [{ userID1: userID }, { userID2: userID }] })
+      .populate([{ path: "userID1" }, { path: "userID2" }])
+      .then((userInfor) => {
+        let listFriendOnline = [];
+        let listUserID = [];
+
+        for (let i = 0; i < userInfor.length; i++) {
+          let usernameID1 = userInfor[i].userID1.username;
+          let usernameID2 = userInfor[i].userID2.username;
+          if (usernameID1 == username) {
+            listFriendOnline.push(usernameID2);
+          } else {
+            listFriendOnline.push(usernameID1);
+          }
+        }
+      })
+      .catch((err) => {
+        let error = new Error(err);
+        error.statusCode = 500;
+        throw error;
+      });
+  });
   ///// thong bao nguoi dung nao dang online
-  socket.on("notificationOnl", (userInfor) => {
+  socket.on("notificationUserOnl", (userInfor) => {
     let username = userInfor.username;
     let token = userInfor.token;
+
     //check xem nguoi dung da online chua.
     userOnlOffModel
       .findOne({ username: username, token: token })
@@ -441,8 +453,10 @@ io.on("connection", (socket) => {
               status: CHECK_ONL.ONL,
             })
             .then((data1) => {
+              console.log("toi day kkhoong");
               userOnlOffModel.find({ status: CHECK_ONL.ONL }).then((data) => {
                 //lay danh sach nhung nguoi dang online bang status
+                console.log(data);
                 let usernameOnl = [];
                 for (let i = 0; i < data.length; i++) {
                   let usernameTemp = data[i].username;
@@ -454,17 +468,13 @@ io.on("connection", (socket) => {
                   .then((dataUser) => {
                     let getUsername = [];
                     let getIDUser = [];
-                    console.log("vao day");
-                    // console.log("testttqwzxqawe: " + dataUser);
                     for (let i = 0; i < dataUser.length; i++) {
                       let getUsernameTemp = dataUser[i].username;
                       let getIDUserTemp = dataUser[i]._id.toString();
                       getUsername.push(getUsernameTemp);
                       getIDUser.push(getIDUserTemp);
                     }
-                    console.log(getUsername);
-                    console.log(getIDUser);
-                    io.sockets.emit("serverNotificationOnl", {
+                    io.sockets.emit("serverNotificationUserOnl", {
                       usernameOnl: getUsername,
                       userID: getIDUser,
                     });
@@ -477,8 +487,6 @@ io.on("connection", (socket) => {
         } else {
           /// xử lý lúc user đã có trong data vẫn trả về mảng các tk đã đăng nhập
           userOnlOffModel.find({ status: 1 }).then((data) => {
-            // console.log("vao cai nay phai k ");
-
             let usernameOnl = [];
             let userID = [];
             for (let i = 0; i < data.length; i++) {
@@ -487,7 +495,7 @@ io.on("connection", (socket) => {
               usernameOnl.push(usernameTemp);
               userID.push(IDTemp);
             }
-            io.sockets.emit("serverNotificationOnl", {
+            io.sockets.emit("serverNotificationUserOnl", {
               usernameOnl: usernameOnl,
               userID: userID,
             });
@@ -532,7 +540,7 @@ io.on("connection", (socket) => {
                 usernameOnl.push(usernameTemp);
                 userID.push(idTemp);
               }
-              socket.broadcast.emit("serverNotificationOnl", {
+              io.sockets.emit("serverNotificationOnl", {
                 usernameOnl: usernameOnl,
                 userID: userID,
               });

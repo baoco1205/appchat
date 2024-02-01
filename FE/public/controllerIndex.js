@@ -66,7 +66,7 @@ $(document).ready(() => {
       socket.on("serverResponseNotification", (data) => {
         let notificationInfor = data.data;
         if (notificationInfor.length == 0) {
-          console.log("sad boy ra doi, khong ai add het. leu leu ");
+          console.log("no add or something ");
         } else {
           console.log(notificationInfor);
           $("#notification").empty();
@@ -160,7 +160,6 @@ $(document).ready(() => {
         socket.on("loadAtUserOnline", (data) => {
           let userNeedAdd = data.userNeedAdd;
           console.log(userNeedAdd);
-
           socket.emit("loadNotification", { userNeedAdd });
         });
         socket.on("addSuccess", (data) => {
@@ -201,18 +200,15 @@ $(document).ready(() => {
       });
 
       /////notification user online
-      socket.emit("notificationOnl", { username, token });
-      socket.on("serverNotificationOnl", (listFriendOnline) => {
-        console.log(listFriendOnline);
-        // console.log(listFriendOnline.usernameOnl);
-        // console.log(listFriendOnline.userID);
-
-        let length = listFriendOnline.usernameOnl.length;
-        console.log(length);
+      socket.emit("notificationUserOnl", { username, token });
+      socket.on("serverNotificationUserOnl", (listUserOnline) => {
+        console.log("tesstststst");
+        console.log(listUserOnline);
+        let length = listUserOnline.usernameOnl.length;
         $("#userList").empty();
         for (let i = 0; i < length; i++) {
-          let userOnl = listFriendOnline.usernameOnl[i];
-          let id = listFriendOnline.userID[i];
+          let userOnl = listUserOnline.usernameOnl[i];
+          let id = listUserOnline.userID[i];
           // Tạo thẻ li với sự kiện click được gắn liền
           let listItem = $(`<li">${i + 1 + ". "}${userOnl}</li></br>`);
           // Gắn sự kiện click cho thẻ li
@@ -222,7 +218,46 @@ $(document).ready(() => {
           // Thêm thẻ li vào #userList
           $("#userList").append(listItem);
         }
+
+        /////notification friend  online
+        fetch("http://localhost:3000/load_friend_online", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: username,
+            listUserOnline: listUserOnline,
+          }),
+        })
+          .then((response) => {
+            // console.log(response);
+            return response.json();
+          })
+          .then((data) => {
+            let listFriendOnline = data.data;
+            $("#friendOnl").empty();
+            for (let i = 0; i < listFriendOnline.length; i++) {
+              let friend = listFriendOnline[i];
+              // let friendID = arrayFriendID[i];
+              let friendOnline = $(`<li>${friend}</li>`);
+              friendOnline.click(() => {
+                handleUserSelectionToChat(friend);
+              });
+              $("#friendOnl").append(friendOnline);
+            }
+          })
+          .catch((err) =>
+            console.error("There was a problem with the fetch operation:", err)
+          );
       });
+      function handleUserSelectionToChat(friend) {
+        alert("TESSTTST");
+      }
+      /////load friend online
+      socket.emit("notificationFriendOnl", {});
+      socket.on("serverNotificationFriendOnl", { token });
 
       /////notification user offline
       ///logout
@@ -243,17 +278,12 @@ $(document).ready(() => {
       });
       //server send msg
       socket.on("serverSendMSGRoom", (msg) => {
-        console.log("zzzzzzzzzxxxxxxxx");
         console.log(msg);
         var noiDung = document.getElementById("noiDung");
-        let numbMSG = msg.msg.length;
         // document.getElementById("noiDung").value = "";
-        document.getElementById("noiDung").innerText = "";
-
-        for (let i = numbMSG - 1; i >= 0; i--) {
-          $("#noiDung").append(msg.username[i] + ": " + msg.msg[i] + "<br>");
-          noiDung.scrollTop = noiDung.scrollHeight;
-        }
+        // document.getElementById("noiDung").innerText = "";
+        $("#noiDung").append(msg.username + ": " + msg.historyChat + "<br>");
+        noiDung.scrollTop = noiDung.scrollHeight;
       });
 
       ////////////////////////////ROOM////////////////////////
