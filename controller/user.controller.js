@@ -110,7 +110,7 @@ let loadFriendOnline = async (req, res) => {
   let username = req.body.username;
   // let listUserOnline = userOnl.filter((item) => item !== username);
   let listFriend = req.body.listFriend.listFriend;
-  let listUserID = req.body.listFriend.listUserID;
+  // let listUserID = req.body.listFriend.listUserID;
   let listFriendOnline = [];
   for (let i = 0; i < listFriend.length; i++) {
     let friendOnline = await userOnlOffModel
